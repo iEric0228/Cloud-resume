@@ -1,0 +1,29 @@
+{
+  "name": "cloud-resume",
+  "version": "1.0.0",
+  "description": "Static resume site deployed on AWS using CI/CD.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iEric0228/Cloud-resume.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iEric0228/Cloud-resume/issues"
+  },
+  "homepage": "https://github.com/iEric0228/Cloud-resume#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0"
+  }
+}

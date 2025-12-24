@@ -1,0 +1,119 @@
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime
+.DS_Store
+.neon_local/
+*.tmp
+*.temp
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# AWS & Cloud
+.aws/
+credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+terraform.tfplan
+terraform.tfplan.*
+
+
+
+# Coverage reports
+coverage/
+.nyc_output/
+*.lcov
+
+# Cache directories
+.cache/
+.parcel-cache/
+.sass-cache/
+
+# Web development
+.vite/
+*.map
+*.min.js
+*.min.css
+
+# Static site generators
+.next/
+.nuxt/
+.gatsby/
+public/
+out/
+
+# CDK (Cloud Development Kit)
+cdk.out/
+*.d.ts
+*.js.map
+
+# SAM (Serverless Application Model)
+.aws-sam/
+samconfig.toml
+
+# Serverless Framework
+.serverless/
+.env.yml
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+*.dockerfile
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# Archive files
+*.zip
+*.tar
+*.rar
+*.7z
