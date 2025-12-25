@@ -41,7 +41,8 @@ jobs:
 
     strategy:
       matrix:
-        environment: [dev]  # Start with just dev for now
+        environment: 
+          - ${{ github.event.inputs.environment || 'dev' }}
     
     steps:
     - name: 🚀 Checkout
