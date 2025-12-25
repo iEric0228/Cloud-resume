@@ -60,8 +60,6 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: ""  # Disable OIDC role assumption
-        audience: ""        # Disable OIDC audience
 
     - name: 🔧 Terraform Init
       working-directory: ./infra/environments/${{ matrix.environment }}
