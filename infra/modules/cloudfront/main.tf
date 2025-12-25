@@ -1,28 +1,53 @@
 resource "aws_cloudfront_distribution" "this" {
-    enabled            = true
+    enabled = true
     
-    //Tells CloudFront where content lives (S3)
+    # Origin configuration
     origin {
         domain_name = var.bucket_domain_name
         origin_id   = "s3-origin"
+        
+        origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
     }
-    //Controls caching + HTTPS
+    
+    # Cache behavior  
     default_cache_behavior {
-        allowed_methods = ["GET", "HEAD"]
-        cached_methods  = ["GET", "HEAD"]
-        target_origin_id = "s3-origin"
-
+        allowed_methods        = ["GET", "HEAD"]
+        cached_methods         = ["GET", "HEAD"]
+        target_origin_id       = "s3-origin"
         viewer_protocol_policy = "redirect-to-https"
+    
+        forwarded_values {
+            query_string = false
+            cookies {
+                forward = "none"
+            }
+        }
     }
-    //Default HTTPS cert
+    
+    default_root_object = "index.html"
+    
+    # Viewer certificate
     viewer_certificate {
-        cloudfront_default_certificate = true 
+        cloudfront_default_certificate = true
     }
-
-    //Geographic restrictions (none by default)
+    
+    # Restrictions
     restrictions {
         geo_restriction {
             restriction_type = "none"
         }
     }
+    
+    tags = {
+        Environment = var.environment
+        Name        = "cloud-resume-${var.environment}-cloudfront"
+    }
+}
+
+resource "aws_cloudfront_origin_access_control" "s3_oac" {
+    name                              = "cloud-resume-${var.environment}-oac"
+    description                       = "OAC for S3 bucket access"
+    origin_access_control_origin_type = "s3"
+    signing_behavior                  = "always"
+    signing_protocol                  = "sigv4"
 }

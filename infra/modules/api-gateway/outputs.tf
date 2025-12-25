@@ -1,5 +1,9 @@
 output "api_url" {
-description = "The URL of the API Gateway"
-value       = aws_api_gateway_rest_api.api_gateway.execution_arn
-    
+  description = "The API Gateway invoke URL"
+  value       = aws_apigatewayv2_stage.prod.invoke_url 
+}
+
+output "api_id" {
+  description = "The API Gateway ID"
+  value       = aws_apigatewayv2_api.visitor_api.id  
 }
