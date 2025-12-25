@@ -29,6 +29,10 @@ env:
   TF_VERSION: '1.6.0'
   AWS_REGION: 'us-east-1'
   
+
+permissions:
+  id-token: write  # For OIDC
+  contents: read   # To read the repo
 jobs:
   terraform-validate:
     name: 'Validate & Plan'
@@ -57,11 +61,8 @@ jobs:
     - name: 🔐 Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: arn:aws:iam::125156866057:role/github-OICD
         aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: ""  # Disable OIDC role assumption
-        audience: ""        # Disable OIDC audience
 
     - name: 🔧 Terraform Init
       working-directory: ./infra/environments/${{ matrix.environment }}
