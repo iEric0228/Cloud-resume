@@ -33,3 +33,4 @@ resource "aws_s3_bucket_public_access_block" "cloud_resume_bucket_public_access_
     ignore_public_acls      = true
     restrict_public_buckets = true
 }
+

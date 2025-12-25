@@ -58,7 +58,7 @@ resource "aws_lambda_function" "visitor_counter" {
   runtime = "python3.11"
 
   environment {
-    variable = {
+    variables = {
       TABLE_NAME = var.dynamodb_table_name
   }
 }

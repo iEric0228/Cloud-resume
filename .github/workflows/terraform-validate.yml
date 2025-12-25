@@ -1,0 +1,92 @@
+name: '🔍 Terraform Validation & Planning'
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: [ 'infra/**' ]
+
+env:
+  TF_VERSION: '1.6.0'
+  AWS_REGION: 'us-east-1'
+  
+jobs:
+  terraform-validate:
+    name: 'Validate & Plan'
+    runs-on: ubuntu-latest
+    
+    # Security: Only run on PRs from the same repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    
+    strategy:
+      matrix:
+        environment: [dev]  # Start with just dev for now
+    
+    steps:
+    - name: 🚀 Checkout
+      uses: actions/checkout@v4
+
+    - name: ⚡ Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🔐 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: 🔧 Terraform Init
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: terraform init
+
+    - name: ✅ Terraform Validate
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: terraform validate
+
+    - name: 📋 Terraform Plan
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: |
+        terraform plan -out=tfplan -no-color > plan_output.txt
+        cat plan_output.txt
+      continue-on-error: true
+      id: plan
+
+    - name: 💬 Comment Plan on PR
+      uses: actions/github-script@v7
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          const path = './infra/environments/${{ matrix.environment }}/plan_output.txt';
+          
+          let planOutput = '';
+          if (fs.existsSync(path)) {
+            planOutput = fs.readFileSync(path, 'utf8');
+          }
+          
+          const output = `#### 🏗️ Terraform Plan Results for **${{ matrix.environment }}**
+          
+          **Status:** ${{ steps.plan.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          
+          <details>
+          <summary>📋 Click to view plan details</summary>
+          
+          \`\`\`terraform
+          ${planOutput}
+          \`\`\`
+          
+          </details>
+          
+          **Environment:** ${{ matrix.environment }}
+          **Terraform Version:** ${{ env.TF_VERSION }}
+          **Triggered by:** @${{ github.actor }}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });
