@@ -10,7 +10,7 @@ resource "aws_apigatewayv2_api" "visitor_api" {
 
   cors_configuration {
     allow_origins = var.cors_origins
-    allow_methods = ["GET", "POST", "OPTIONS"]
+    allow_methods = ["GET", "OPTIONS"]
     allow_headers = ["content-type"]
   }
 
@@ -27,14 +27,6 @@ resource "aws_apigatewayv2_route" "get_count" {
   route_key = "GET /count"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
-
-# ✅ Add POST route for frontend
-resource "aws_apigatewayv2_route" "post_count" {
-  api_id = aws_apigatewayv2_api.visitor_api.id
-  route_key = "POST /count"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-}
-
 resource "aws_apigatewayv2_stage" "prod" {
   api_id      = aws_apigatewayv2_api.visitor_api.id
   name        = "prod"
