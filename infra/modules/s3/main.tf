@@ -42,15 +42,23 @@ resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
 resource "aws_s3_bucket_public_access_block" "cloud_resume_bucket_public_access_block" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
 
-  block_public_acls       = false
+  block_public_acls       = true
   block_public_policy     = false
-  ignore_public_acls      = false
+  ignore_public_acls      = true
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_policy" "cloud_resume_policy" {
+
+resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
-  depends_on = [aws_s3_bucket_public_access_block.cloud_resume_bucket_public_access_block]
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_policy" "cloud_resume_policy" {
+  bucket     = aws_s3_bucket.cloud_resume_bucket.id
+  depends_on = [aws_s3_bucket_public_access_block.cloud_resume_block_public]
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -66,9 +74,11 @@ resource "aws_s3_bucket_policy" "cloud_resume_policy" {
   })
 }
 
-resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
+resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
-  versioning_configuration {
-    status = "Enabled"
-  }
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }

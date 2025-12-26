@@ -12,8 +12,8 @@ on:
           - destroy-only
         default: deploy-test-destroy
       
-      keep_alive_hours:
-        description: 'Hours to keep running (for demos)'
+      keep_alive_minutes:
+        description: 'Minutes to keep running (for demos)'
         type: string
         default: '1'
 
@@ -139,38 +139,44 @@ jobs:
         
         echo "✅ All required outputs extracted successfully"
 
-    - name: 📤 Deploy Website
-      if: github.event.inputs.action != 'destroy-only'
-      run: |
-        echo "📤 Deploying website files..."
-        echo "🔍 Using S3 bucket: $S3_BUCKET"
-        
-        # Verify website directory exists
-        if [ ! -d "./website" ]; then
-          echo "❌ ERROR: ./website directory not found!"
-          echo "🔍 Current directory contents:"
-          ls -la
-          exit 1
-        fi
-        
-        # Verify required files exist
-        required_files=("./website/index.html" "./website/css/styles.css" "./website/js/visitor-counter.js")
-        for file in "${required_files[@]}"; do
-          if [ ! -f "$file" ]; then
-            echo "❌ ERROR: Required file $file not found!"
-            exit 1
+        - name: 📤 Deploy Website
+        if: github.event.inputs.action != 'destroy-only'
+        run: |
+          echo "📤 Deploying website files..."
+          echo "🔍 Using S3 bucket: $S3_BUCKET"
+          echo "🔍 Using API URL: $API_URL"
+          
+          # ✅ Replace placeholder API URL with real API Gateway URL
+          echo "🔄 Updating visitor counter with API URL..."
+          sed -i "s|REPLACE_WITH_API_URL|$API_URL|g" ./website/js/visitor-counter.js
+          
+          # Verify the replacement worked
+          if grep -q "REPLACE_WITH_API_URL" ./website/js/visitor-counter.js; then
+            echo "⚠️ WARNING: API URL replacement may have failed"
+            grep -n "REPLACE_WITH_API_URL" ./website/js/visitor-counter.js
           else
-            echo "✅ Found: $file"
+            echo "✅ API URL replacement successful"
           fi
-        done
-        
-        # Deploy to S3
-        aws s3 sync ./website/ s3://$S3_BUCKET/ --delete
-        aws s3 cp ./website/index.html s3://$S3_BUCKET/index.html --content-type "text/html"
-        aws s3 cp ./website/css/styles.css s3://$S3_BUCKET/css/styles.css --content-type "text/css"
-        aws s3 cp ./website/js/visitor-counter.js s3://$S3_BUCKET/js/visitor-counter.js --content-type "application/javascript"
-        
-        echo "✅ Website deployment completed"
+          
+          # Verify required files exist
+          required_files=("./website/index.html" "./website/css/styles.css" "./website/js/visitor-counter.js")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ ERROR: Required file $file not found!"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          # Deploy to S3 with proper content types
+          aws s3 sync ./website/ s3://$S3_BUCKET/ --delete
+          aws s3 cp ./website/index.html s3://$S3_BUCKET/index.html --content-type "text/html" --cache-control "no-cache"
+          aws s3 cp ./website/css/styles.css s3://$S3_BUCKET/css/styles.css --content-type "text/css"
+          aws s3 cp ./website/js/visitor-counter.js s3://$S3_BUCKET/js/visitor-counter.js --content-type "application/javascript"
+          aws s3 cp ./website/js/animation.js s3://$S3_BUCKET/js/animation.js --content-type "application/javascript"
+          
+          echo "✅ Website deployment completed"
 
     - name: 🧪 Test Deployment
       if: github.event.inputs.action != 'destroy-only'
