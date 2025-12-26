@@ -1,0 +1,179 @@
+name: '☁️ Cloud Resume CI/CD'
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        type: choice
+        options:
+          - deploy-test-keep
+          - deploy-test-destroy
+          - destroy-only
+        default: deploy-test-destroy
+      
+      keep_alive_hours:
+        description: 'Hours to keep running (for demos)'
+        type: string
+        default: '1'
+
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'website/**'
+      - 'infra/**'
+
+  push:
+    branches: [ main ]
+    paths:
+      - 'website/**'
+      - 'infra/**'
+
+env:
+  TF_VERSION: '1.5.0'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  # Validation job (runs on PRs)
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: 🚀 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: ⚡ Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🔍 Validate Everything
+      run: |
+        # Terraform validation
+        cd infra/environments/dev
+        terraform init
+        terraform validate
+        terraform fmt -check
+        echo "✅ Terraform validation passed"
+        
+        # Website validation
+        cd ../../../
+        required_files=("website/index.html" "website/css/styles.css" "website/js/visitor-counter.js")
+        for file in "${required_files[@]}"; do
+          [[ -f "$file" ]] && echo "✅ $file" || { echo "❌ Missing $file"; exit 1; }
+        done
+        echo "✅ Website files validation passed"
+
+  # Main deploy job (runs on push, manual dispatch)
+  deploy-resume:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: 🚀 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: ⚡ Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
+
+    - name: 🔐 Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::125156866057:role/github-OICD
+        role-session-name: cloud-resume-${{ github.run_id }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: 🏗️ Deploy Infrastructure
+      if: github.event.inputs.action != 'destroy-only'
+      working-directory: ./infra/environments/dev
+      run: |
+        echo "🚀 Deploying cloud resume infrastructure..."
+        terraform init
+        terraform apply -auto-approve
+        
+        # Export outputs
+        echo "S3_BUCKET=$(terraform output -raw s3_bucket_name)" >> $GITHUB_ENV
+        echo "WEBSITE_URL=$(terraform output -raw website_url)" >> $GITHUB_ENV
+        echo "API_URL=$(terraform output -raw api_url)" >> $GITHUB_ENV
+
+    - name: 📤 Deploy Website
+      if: github.event.inputs.action != 'destroy-only'
+      run: |
+        echo "📤 Deploying website files..."
+        aws s3 sync ./website/ s3://$S3_BUCKET/ --delete
+        aws s3 cp ./website/index.html s3://$S3_BUCKET/index.html --content-type "text/html"
+        aws s3 cp ./website/css/styles.css s3://$S3_BUCKET/css/styles.css --content-type "text/css"
+        aws s3 cp ./website/js/visitor-counter.js s3://$S3_BUCKET/js/visitor-counter.js --content-type "application/javascript"
+
+    - name: 🧪 Test Deployment
+      if: github.event.inputs.action != 'destroy-only'
+      run: |
+        echo "🧪 Testing deployed resume..."
+        sleep 60  # Wait for CloudFront
+        
+        # Test website
+        curl -f $WEBSITE_URL && echo "✅ Website working" || echo "❌ Website failed"
+        
+        # Test API
+        response=$(curl -s $API_URL/count)
+        echo "API Response: $response"
+        if echo "$response" | grep -q "visitor_count"; then
+          echo "✅ Visitor counter API working"
+        else
+          echo "❌ API test failed"
+        fi
+
+    - name: 📊 Summary
+      if: github.event.inputs.action != 'destroy-only'
+      run: |
+        echo "## ☁️ Cloud Resume Deployment" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**🌐 Live Website:** [$WEBSITE_URL]($WEBSITE_URL)" >> $GITHUB_STEP_SUMMARY
+        echo "**⚡ Visitor Counter API:** $API_URL/count" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        keep_hours="${{ github.event.inputs.keep_alive_hours || '24' }}"
+        if [ "${{ github.event.inputs.action }}" = "deploy-test-destroy" ]; then
+          echo "⏰ **Auto-cleanup scheduled in $keep_hours hour(s)**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ **Status:** Deployed and running" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: ⏳ Keep Running (Demo Period)
+      if: github.event.inputs.action == 'deploy-test-keep' || github.event.inputs.action == 'deploy-test-destroy'
+      run: |
+        hours="${{ github.event.inputs.keep_alive_hours || '1' }}"
+        echo "⏳ Keeping resume live for $hours hour(s) for demo/testing..."
+        echo "🌐 Visit: $WEBSITE_URL"
+        sleep $(($hours * 3600))
+
+    - name: 🗑️ Cleanup
+      if: always() && (github.event.inputs.action == 'deploy-test-destroy' || github.event.inputs.action == 'destroy-only')
+      working-directory: ./infra/environments/dev
+      run: |
+        echo "🗑️ Cleaning up resources..."
+        
+        # Get bucket name if we need to
+        if [ "${{ github.event.inputs.action }}" = "destroy-only" ]; then
+          S3_BUCKET=$(terraform output -raw s3_bucket_name 2>/dev/null || echo "")
+        fi
+        
+        # Empty S3 bucket
+        if [ ! -z "$S3_BUCKET" ]; then
+          echo "🪣 Emptying S3 bucket..."
+          aws s3 rm s3://$S3_BUCKET --recursive || true
+        fi
+        
+        # Destroy infrastructure
+        terraform destroy -auto-approve || true
+        echo "✅ Cleanup completed!"
