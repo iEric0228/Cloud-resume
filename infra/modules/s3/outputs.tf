@@ -19,6 +19,6 @@ output "bucket_regional_domain_name" {
 }
 
 output "website_endpoint" {
-    description = "S3 website endpoint"
-    value       = aws_s3_bucket_website_configuration.cloud_resume_website.website_endpoint
+  description = "S3 website endpoint"
+  value       = aws_s3_bucket_website_configuration.cloud_resume_bucket_website.website_endpoint
 }
