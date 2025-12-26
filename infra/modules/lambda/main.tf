@@ -1,20 +1,21 @@
 terraform {
+  required_version = ">= 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.1"
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.2"
     }
   }
 }
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/../../../backend/lambda"
-  output_path = "${path.module}/lambda_function.zip"
+  source_file = "${path.root}/../../../backend/lambda/handler.py"
+  output_path = "${path.module}/visitor_counter.zip"
 }
 
 resource "random_string" "lambda_suffix" {
@@ -24,7 +25,7 @@ resource "random_string" "lambda_suffix" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "visitor-counter-lambda-role-${var.environment}-${random_string.lambda_suffix.result}"
+  name = "cloud-resume-lambda-role-${var.environment}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -69,12 +70,13 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy" {
 }
 
 resource "aws_lambda_function" "visitor_counter" {
-  filename      = data.archive_file.lambda_zip.output_path
-  function_name = "visitor-counter-${var.environment}-${random_string.lambda_suffix.result}"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
+  filename         = data.archive_file.lambda_zip.output_path
+  function_name    = "cloud-resume-visitor-counter-${var.environment}"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.9"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  timeout          = 10
 
   environment {
     variables = {
@@ -83,7 +85,7 @@ resource "aws_lambda_function" "visitor_counter" {
   }
 
   tags = {
-    Name        = "VisitorCounterLambda-${var.environment}"
+    Name        = "CloudResumeVisitorCounter-${var.environment}"
     Environment = var.environment
   }
 }
