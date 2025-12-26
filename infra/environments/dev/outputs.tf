@@ -9,8 +9,8 @@ output "website_url" {
 }
 
 output "api_url" {
-  description = "API Gateway URL"
-  value       = module.api_gateway.api_url
+  description = "API Gateway URL for visitor counter"
+  value       = "${module.api_gateway.api_url}/count"
 }
 
 output "lambda_function_name" {
