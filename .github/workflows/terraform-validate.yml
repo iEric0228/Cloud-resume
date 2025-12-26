@@ -1,0 +1,132 @@
+# .github/workflows/terraform-validate.yml
+name: '🔍 Terraform Validation & Planning'
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths: [ 'infra/**' ]
+  workflow_dispatch:  # ✅ Manual trigger
+    inputs:
+      environment:
+        description: 'Environment to validate'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      terraform_action:
+        description: 'Terraform action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - validate
+          - plan
+          - fmt-check
+
+env:
+  TF_VERSION: '1.6.0'
+  AWS_REGION: 'us-east-1'
+  
+
+permissions:
+  id-token: write  # For OIDC
+  contents: read   # To read the repo
+jobs:
+  terraform-validate:
+    name: 'Validate & Plan'
+    runs-on: ubuntu-latest
+    
+    # Security: Only run on PRs from same repo OR manual dispatch
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      github.event.pull_request.head.repo.full_name == github.repository
+    
+    strategy:
+      matrix:
+        # Use input environment for manual runs, dev for PRs
+        environment: 
+          - ${{ github.event.inputs.environment || 'dev' }}
+    
+    steps:
+    - name: 🚀 Checkout
+      uses: actions/checkout@v4
+
+    - name: ⚡ Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: 🔐 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::125156866057:role/github-OICD
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: 🔧 Terraform Init
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: terraform init
+
+    - name: 📝 Terraform Format Check (if selected)
+      if: github.event.inputs.terraform_action == 'fmt-check' || github.event_name == 'pull_request'
+      working-directory: ./infra
+      run: terraform fmt -check -recursive
+
+    - name: ✅ Terraform Validate
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: terraform validate
+
+    - name: 📋 Terraform Plan
+      if: github.event.inputs.terraform_action == 'plan' || github.event_name == 'pull_request'
+      working-directory: ./infra/environments/${{ matrix.environment }}
+      run: |
+        terraform plan -out=tfplan -no-color > plan_output.txt
+        echo "## 📋 Terraform Plan Output" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** ${{ matrix.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Action:** ${{ github.event.inputs.terraform_action || 'plan' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`terraform" >> $GITHUB_STEP_SUMMARY
+        cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        cat plan_output.txt
+      continue-on-error: true
+      id: plan
+
+    - name: 💬 Comment Plan on PR (PR only)
+      uses: actions/github-script@v7
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          const path = './infra/environments/${{ matrix.environment }}/plan_output.txt';
+          
+          let planOutput = '';
+          if (fs.existsSync(path)) {
+            planOutput = fs.readFileSync(path, 'utf8');
+          }
+          
+          const output = `#### 🏗️ Terraform Plan Results for **${{ matrix.environment }}**
+          
+          **Status:** ${{ steps.plan.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          
+          <details>
+          <summary>📋 Click to view plan details</summary>
+          
+          \`\`\`terraform
+          ${planOutput}
+          \`\`\`
+          
+          </details>
+          
+          **Environment:** ${{ matrix.environment }}
+          **Terraform Version:** ${{ env.TF_VERSION }}
+          **Triggered by:** @${{ github.actor }}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });
