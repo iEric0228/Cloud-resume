@@ -8,7 +8,6 @@ module "dynamodb" {
 #S3 bucket for static website hosting
 module "s3" {
   source      = "../../modules/s3"
-  bucket_name = var.bucket_name
   environment = var.environment
 }
 
@@ -22,8 +21,8 @@ module "lambda" {
 module "api_gateway" {
   source               = "../../modules/api-gateway"
   environment          = var.environment
-  lambda_function_name = module.lambda.function_name       # ← From Lambda
-  lambda_invoke_arn    = module.lambda.function_invoke_arn # ← From Lambda
+  lambda_function_name = module.lambda.function_name
+  lambda_invoke_arn    = module.lambda.function_invoke_arn
 }
 
 module "cloudfront" {
