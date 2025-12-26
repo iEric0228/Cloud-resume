@@ -139,44 +139,133 @@ jobs:
         
         echo "✅ All required outputs extracted successfully"
 
-        - name: 📤 Deploy Website
-        if: github.event.inputs.action != 'destroy-only'
-        run: |
-          echo "📤 Deploying website files..."
-          echo "🔍 Using S3 bucket: $S3_BUCKET"
-          echo "🔍 Using API URL: $API_URL"
+    - name: 📤 Deploy Website
+      if: github.event.inputs.action != 'destroy-only'
+      run: |
+        echo "📤 Deploying website files..."
+        
+        # Get outputs from Terraform with proper error handling
+        cd infra/environments/dev
+        
+        # Extract outputs with proper quoting
+        S3_BUCKET=$(terraform output -raw s3_bucket_name 2>/dev/null || echo "")
+        API_URL=$(terraform output -raw api_url 2>/dev/null || echo "")
+        WEBSITE_URL=$(terraform output -raw website_url 2>/dev/null || echo "")
+        
+        # Validate outputs exist
+        if [[ -z "$S3_BUCKET" || -z "$API_URL" || -z "$WEBSITE_URL" ]]; then
+          echo "❌ ERROR: Missing required Terraform outputs"
+          echo "S3_BUCKET: '$S3_BUCKET'"
+          echo "API_URL: '$API_URL'"
+          echo "WEBSITE_URL: '$WEBSITE_URL'"
+          exit 1
+        fi
+        
+        echo "🔍 Using S3 bucket: $S3_BUCKET"
+        echo "🔍 Using API URL: $API_URL"
+        echo "🔍 Using Website URL: $WEBSITE_URL"
+        
+        # Go back to project root
+        cd ../../../
+        
+        # Verify website directory exists
+        if [[ ! -d "website" ]]; then
+          echo "❌ ERROR: website directory not found"
+          ls -la
+          exit 1
+        fi
+        
+        echo "✅ Found website directory"
+        ls -la website/
+        
+        # Update visitor counter with API URL
+        echo "🔄 Updating visitor counter with API URL..."
+        if [[ -f "website/js/visitor-counter.js" ]]; then
+          # Create backup
+          cp website/js/visitor-counter.js website/js/visitor-counter.js.bak
           
-          # ✅ Replace placeholder API URL with real API Gateway URL
-          echo "🔄 Updating visitor counter with API URL..."
-          sed -i "s|REPLACE_WITH_API_URL|$API_URL|g" ./website/js/visitor-counter.js
+          # Replace API URL (using different delimiter to avoid issues with URL slashes)
+          sed -i "s|REPLACE_WITH_API_URL|${API_URL}|g" website/js/visitor-counter.js
           
-          # Verify the replacement worked
-          if grep -q "REPLACE_WITH_API_URL" ./website/js/visitor-counter.js; then
+          # Verify replacement worked
+          if grep -q "REPLACE_WITH_API_URL" website/js/visitor-counter.js; then
             echo "⚠️ WARNING: API URL replacement may have failed"
-            grep -n "REPLACE_WITH_API_URL" ./website/js/visitor-counter.js
+            echo "Searching for REPLACE_WITH_API_URL:"
+            grep -n "REPLACE_WITH_API_URL" website/js/visitor-counter.js || true
           else
             echo "✅ API URL replacement successful"
+            echo "New API URL in file:"
+            grep -n "apiUrl.*=" website/js/visitor-counter.js | head -1 || true
           fi
+        else
+          echo "❌ ERROR: visitor-counter.js not found"
+          exit 1
+        fi
+        
+        # Verify all required files exist
+        required_files=(
+          "website/index.html"
+          "website/css/styles.css" 
+          "website/js/visitor-counter.js"
+        )
+        
+        for file in "${required_files[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "❌ ERROR: Required file $file not found!"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        # Upload website files to S3
+        echo "🚀 Uploading website files to S3..."
+        
+        # Sync all files first
+        aws s3 sync website/ "s3://${S3_BUCKET}/" --delete
+        
+        # Set specific content types and cache headers
+        echo "🔧 Setting content types and cache headers..."
+        
+        aws s3 cp website/index.html "s3://${S3_BUCKET}/index.html" \
+          --content-type "text/html" \
+          --cache-control "no-cache, no-store, must-revalidate"
           
-          # Verify required files exist
-          required_files=("./website/index.html" "./website/css/styles.css" "./website/js/visitor-counter.js")
-          for file in "${required_files[@]}"; do
-            if [ ! -f "$file" ]; then
-              echo "❌ ERROR: Required file $file not found!"
-              exit 1
-            else
-              echo "✅ Found: $file"
-            fi
-          done
+        aws s3 cp website/css/styles.css "s3://${S3_BUCKET}/css/styles.css" \
+          --content-type "text/css" \
+          --cache-control "max-age=31536000"
           
-          # Deploy to S3 with proper content types
-          aws s3 sync ./website/ s3://$S3_BUCKET/ --delete
-          aws s3 cp ./website/index.html s3://$S3_BUCKET/index.html --content-type "text/html" --cache-control "no-cache"
-          aws s3 cp ./website/css/styles.css s3://$S3_BUCKET/css/styles.css --content-type "text/css"
-          aws s3 cp ./website/js/visitor-counter.js s3://$S3_BUCKET/js/visitor-counter.js --content-type "application/javascript"
-          aws s3 cp ./website/js/animation.js s3://$S3_BUCKET/js/animation.js --content-type "application/javascript"
-          
-          echo "✅ Website deployment completed"
+        aws s3 cp website/js/visitor-counter.js "s3://${S3_BUCKET}/js/visitor-counter.js" \
+          --content-type "application/javascript" \
+          --cache-control "max-age=3600"
+        
+        # Upload animation.js if it exists
+        if [[ -f "website/js/animation.js" ]]; then
+          aws s3 cp website/js/animation.js "s3://${S3_BUCKET}/js/animation.js" \
+            --content-type "application/javascript" \
+            --cache-control "max-age=31536000"
+          echo "✅ Uploaded animation.js"
+        fi
+        
+        # Restore original visitor-counter.js
+        if [[ -f "website/js/visitor-counter.js.bak" ]]; then
+          mv website/js/visitor-counter.js.bak website/js/visitor-counter.js
+          echo "✅ Restored original visitor-counter.js"
+        fi
+        
+        echo "✅ Website deployment completed successfully!"
+        echo "🌐 Website available at: $WEBSITE_URL"
+        
+        # Test the deployment
+        echo "🧪 Testing API endpoint..."
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL" || echo "000")
+        if [[ "$HTTP_STATUS" == "200" ]]; then
+          echo "✅ API endpoint is responding correctly"
+        else
+          echo "⚠️ API endpoint returned status: $HTTP_STATUS"
+        fi
+        
+        echo "🎉 Deployment completed! Visit your resume at: $WEBSITE_URL"
 
     - name: 🧪 Test Deployment
       if: github.event.inputs.action != 'destroy-only'

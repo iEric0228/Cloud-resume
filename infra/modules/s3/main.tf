@@ -12,7 +12,7 @@ terraform {
 }
 
 resource "aws_s3_bucket" "cloud_resume_bucket" {
-  bucket = "cloud-resume-${var.environment}-${random_string.bucket_suffix.result}"
+  bucket        = "cloud-resume-${var.environment}-${random_string.bucket_suffix.result}"
   force_destroy = var.force_destroy
 
   tags = {
@@ -39,15 +39,14 @@ resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "cloud_resume_bucket_public_access_block" {
+resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
 
-  block_public_acls       = true
+  block_public_acls       = false
   block_public_policy     = false
-  ignore_public_acls      = true
+  ignore_public_acls      = false
   restrict_public_buckets = false
 }
-
 
 resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
@@ -72,13 +71,4 @@ resource "aws_s3_bucket_policy" "cloud_resume_policy" {
       }
     ]
   })
-}
-
-resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
-  bucket = aws_s3_bucket.cloud_resume_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
 }

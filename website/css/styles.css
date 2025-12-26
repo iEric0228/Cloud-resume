@@ -184,59 +184,63 @@
   
   /* Interactive Contact Cards */
   .contact-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      position: relative;
-      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
   }
   
   .contact-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 15px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 15px;
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: var(--transition-fast);
-      position: relative;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      max-width: 280px;
       overflow: hidden;
-      cursor: pointer;
-  }
-  
-  .contact-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: var(--transition-fast);
-  }
-  
-  .contact-item:hover::before {
-      left: 100%;
-  }
-  
-  .contact-item:hover {
-      background: rgba(255,255,255,0.25);
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      box-sizing: border-box;
   }
   
   .contact-item i {
-      font-size: 1.4em;
-      color: #3498db;
-      transition: var(--transition-fast);
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+      color: #007bff;
+      font-size: 14px;
   }
   
-  .contact-item:hover i {
-      color: #5dade2;
-      transform: rotate(360deg) scale(1.2);
+  .contact-item a,
+  .contact-item span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+  }
+
+  /* Contact link styling */
+  .contact-link {
+      color: inherit !important;
+      text-decoration: none !important;
+      transition: color 0.3s ease;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+  }
+
+  .contact-link:hover {
+      color: #007bff !important;
+      text-decoration: underline !important;
+  }
+
+  .contact-link:before,
+  .contact-link:after {
+      content: none !important;
   }
   
   /* Enhanced Section Styles */
@@ -680,8 +684,14 @@
       }
   
       .contact-info {
-          grid-template-columns: 1fr;
-          gap: 15px;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+      }
+  
+      .contact-item {
+          max-width: 90%;
+          justify-content: flex-start;
       }
   
       .skills-grid {
