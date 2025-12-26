@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,6 +12,14 @@ terraform {
   }
 }
 
+# Random suffix for unique bucket names
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
+# S3 bucket for hosting
 resource "aws_s3_bucket" "cloud_resume_bucket" {
   bucket        = "cloud-resume-${var.environment}-${random_string.bucket_suffix.result}"
   force_destroy = var.force_destroy
@@ -21,12 +30,18 @@ resource "aws_s3_bucket" "cloud_resume_bucket" {
   }
 }
 
-resource "random_string" "bucket_suffix" {
-  length  = 8
-  special = false
-  upper   = false
+# ✅ FIX: Configure public access block FIRST, then policy
+resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
+
+  # ✅ CHANGE: Allow public policies for website hosting
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 
+# Website configuration
 resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
 
@@ -39,15 +54,7 @@ resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
-  bucket = aws_s3_bucket.cloud_resume_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
+# Versioning
 resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
   versioning_configuration {
@@ -55,8 +62,11 @@ resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
   }
 }
 
+# ✅ FIX: Bucket policy with proper dependency
 resource "aws_s3_bucket_policy" "cloud_resume_policy" {
   bucket     = aws_s3_bucket.cloud_resume_bucket.id
+  
+  # ✅ CRITICAL: Wait for public access block to be configured
   depends_on = [aws_s3_bucket_public_access_block.cloud_resume_block_public]
 
   policy = jsonencode({
@@ -71,4 +81,17 @@ resource "aws_s3_bucket_policy" "cloud_resume_policy" {
       }
     ]
   })
+}
+
+# CORS configuration for API calls
+resource "aws_s3_bucket_cors_configuration" "cloud_resume_cors" {
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
