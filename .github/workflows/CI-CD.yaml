@@ -99,6 +99,23 @@ jobs:
       run: |
         echo "🚀 Deploying cloud resume infrastructure..."
         terraform init
+        
+        # ✅ ADD: Check for existing resources and import if needed
+        echo "🔍 Checking for existing resources..."
+        
+        # Check if DynamoDB table exists
+        if aws dynamodb describe-table --table-name cloud-resume-visitor-count-dev 2>/dev/null; then
+          echo "📋 DynamoDB table exists, importing to Terraform state..."
+          terraform import module.dynamodb.aws_dynamodb_table.visitor_count cloud-resume-visitor-count-dev || true
+        else
+          echo "📋 DynamoDB table doesn't exist, will create new one"
+        fi
+        
+        # Plan first to see what will be created/modified
+        echo "📋 Planning deployment..."
+        terraform plan
+        
+        # Apply changes
         terraform apply -auto-approve
         
         echo "🔍 Debug: Available Terraform outputs:"
