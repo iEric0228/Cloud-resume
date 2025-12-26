@@ -14,3 +14,9 @@ variable "force_destroy" {
     type        = bool
     default     = true  # ✅ Change to true for easier cleanup
 }
+
+variable "cloudfront_distribution_arn" {
+  description = "CloudFront distribution ARN for bucket policy"
+  type        = string
+  default     = ""
+}

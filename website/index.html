@@ -3,33 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - DevOps Engineer</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Eric Chiu - Cloud Engineer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Eric </h1>
-        <p>Aspiring DevOps Engineer</p>
-    </header>
-    
-    <section id="about">
-        <h2>About Me</h2>
-        <p>Passionate about cloud infrastructure and automation...</p>
-    </section>
-    
-    <section id="skills">
-        <h2>Technical Skills</h2>
-        <ul>
-            <li>AWS (S3, Lambda, CloudFront)</li>
-            <li>Terraform</li>
-            <li>CI/CD (GitHub Actions)</li>
-        </ul>
-    </section>
-    
-    <footer>
-        <p>Visitor Count: <span id="visitor-count">Loading...</span></p>
-    </footer>
-    
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="profile-section">
+                <div class="profile-info">
+                    <h1>Eric Chiu</h1>
+                    <h2>Cloud Engineer & DevOps Specialist</h2>
+                    <p class="tagline">Building scalable cloud solutions with AWS, Terraform, and modern DevOps practices</p>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>ericchiu0228@gmail.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-linkedin"></i>
+                    <span>https://www.linkedin.com/in/eric-chiu-a610553a3/</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <span>https://github.com/iEric0228</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Boston, MA</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Professional Summary -->
+        <section class="section">
+            <h3 class="section-title">Professional Summary</h3>
+            <p class="summary-text">
+                Passionate Cloud Engineer with expertise in AWS services, Infrastructure as Code, and DevOps automation. 
+                Experienced in designing and implementing scalable, secure cloud architectures using Terraform, 
+                CI/CD pipelines, and modern development practices.
+            </p>
+        </section>
+
+        <!-- Technical Skills -->
+        <section class="section">
+            <h3 class="section-title">Technical Skills</h3>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h4>Cloud Platforms</h4>
+                    <ul>
+                        <li>Amazon Web Services (AWS)</li>
+                        <li>S3, Lambda, API Gateway</li>
+                        <li>CloudFront, DynamoDB</li>
+                        <li>IAM, CloudWatch</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h4>Infrastructure as Code</h4>
+                    <ul>
+                        <li>Terraform</li>
+                        <li>CloudFormation</li>
+                        <li>Ansible</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h4>DevOps & CI/CD</h4>
+                    <ul>
+                        <li>GitHub Actions</li>
+                        <li>Docker</li>
+                        <li>Git</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h4>Programming</h4>
+                    <ul>
+                        <li>Python</li>
+                        <li>JavaScript</li>
+                        <li>Bash Scripting</li>
+                        <li>YAML/JSON</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="section">
+            <h3 class="section-title">Featured Projects</h3>
+
+            <div class="project">
+                <h4 class="project-title">
+                    <i class="fas fa-cloud"></i>
+                    Cloud Resume Challenge (This Website!)
+                </h4>
+                <div class="project-tech">
+                    <span class="tech-tag">AWS</span>
+                    <span class="tech-tag">Terraform</span>
+                    <span class="tech-tag">GitHub Actions</span>
+                    <span class="tech-tag">Python</span>
+                </div>
+                <p class="project-description">
+                    Built a serverless resume website using AWS services including S3, CloudFront, Lambda, 
+                    API Gateway, and DynamoDB. Implemented Infrastructure as Code with Terraform and 
+                    automated deployment with GitHub Actions CI/CD pipeline.
+                </p>
+                <div class="project-links">
+                    <a href="https://github.com/iEric0228/cloud-resume" class="project-link">
+                        <i class="fab fa-github"></i> View Code
+                    </a>
+                    <a href="#" class="project-link">
+                        <i class="fas fa-external-link-alt"></i> Live Demo
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add more projects here -->
+        </section>
+
+        <!-- Experience Section -->
+        <section class="section">
+            <h3 class="section-title">Professional Experience</h3>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <h4>Your Job Title</h4>
+                    <span class="company">Company Name</span>
+                    <span class="duration">Start Date - End Date</span>
+                </div>
+                <ul class="experience-details">
+                    <li>Managed AWS cloud infrastructure serving X users</li>
+                    <li>Implemented CI/CD pipelines reducing deployment time by X%</li>
+                    <li>Automated infrastructure provisioning with Terraform</li>
+                    <li>Optimized cloud costs by $X/month through resource optimization</li>
+                </ul>
+            </div>
+
+            <!-- Add more experience items -->
+        </section>
+
+        <!-- Education & Certifications -->
+        <section class="section">
+            <h3 class="section-title">Education & Certifications</h3>
+
+            <div class="education-item">
+                <h4>Computer Engineering</h4>
+                <span class="institution">University of Massachusetts Boston</span>
+                <span class="year">Graduation:2024</span>
+            </div>
+
+            <div class="certifications">
+                <h4>Certifications</h4>
+                <ul>
+                    <li>AWS Certified Solutions Architect (Target)</li>
+                    <li>AWS Certified Developer (Target)</li>
+                    <li>AWS Cloud Practitioner</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Visitor Counter -->
+        <section class="section visitor-counter">
+            <h3 class="section-title">
+                <i class="fas fa-eye"></i>
+                Visitor Counter
+            </h3>
+            <div class="counter-display">
+                <span class="counter-text">This resume has been viewed</span>
+                <span id="visitor-count" class="counter-number">Loading...</span>
+                <span class="counter-text">times</span>
+            </div>
+            <p class="counter-note">Powered by AWS Lambda & DynamoDB</p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Eric Chiu. Built with AWS, Terraform </p>
+            <div class="footer-links">
+                <a href="mailto:ericchiu0228@gmail.com">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/eric-chiu-a610553a3/">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="https://github.com/iEric0228">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript for visitor counter -->
     <script src="js/visitor-counter.js"></script>
+    <!-- JavaScript for visitor counter and animations -->
+    <script src="js/visitor-counter.js"></script>
+    <script src="js/animation.js"></script>
+</body>
+</html>
 </body>
 </html>

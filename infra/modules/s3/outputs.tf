@@ -23,4 +23,3 @@ output "website_endpoint" {
     description = "S3 website endpoint"
     value       = aws_s3_bucket_website_configuration.cloud_resume_website.website_endpoint
 }
-# ✅ THAT'S IT! No other resources should be here!

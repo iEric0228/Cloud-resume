@@ -15,3 +15,9 @@ variable "bucket_name" {
   type        = string
   default     = "cloud-resume-dev-website"
 }
+
+variable "aws_region" {
+  description = "AWS region for deployment"
+  type        = string
+  default     = "us-east-1"
+}
