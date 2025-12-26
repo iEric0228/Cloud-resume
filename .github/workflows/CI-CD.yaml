@@ -101,19 +101,76 @@ jobs:
         terraform init
         terraform apply -auto-approve
         
-        # Export outputs
-        echo "S3_BUCKET=$(terraform output -raw s3_bucket_name)" >> $GITHUB_ENV
-        echo "WEBSITE_URL=$(terraform output -raw website_url)" >> $GITHUB_ENV
-        echo "API_URL=$(terraform output -raw api_url)" >> $GITHUB_ENV
+        echo "🔍 Debug: Available Terraform outputs:"
+        terraform output || echo "❌ No outputs available"
+        
+        # Export outputs with better error handling
+        S3_BUCKET=$(terraform output -raw s3_bucket_name 2>/dev/null || echo "")
+        WEBSITE_URL=$(terraform output -raw website_url 2>/dev/null || echo "")  
+        API_URL=$(terraform output -raw api_url 2>/dev/null || echo "")
+        
+        echo "🔍 Debug: Extracted values:"
+        echo "S3_BUCKET='$S3_BUCKET'"
+        echo "WEBSITE_URL='$WEBSITE_URL'"
+        echo "API_URL='$API_URL'"
+        
+        # Validate required outputs
+        if [ -z "$S3_BUCKET" ]; then
+          echo "❌ ERROR: S3 bucket name is empty!"
+          echo "🔍 All available outputs:"
+          terraform output -json || echo "No JSON outputs available"
+          exit 1
+        fi
+        
+        if [ -z "$WEBSITE_URL" ]; then
+          echo "❌ ERROR: Website URL is empty!"
+          exit 1
+        fi
+        
+        if [ -z "$API_URL" ]; then
+          echo "❌ ERROR: API URL is empty!"
+          exit 1
+        fi
+        
+        # Export to environment
+        echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
+        echo "WEBSITE_URL=$WEBSITE_URL" >> $GITHUB_ENV
+        echo "API_URL=$API_URL" >> $GITHUB_ENV
+        
+        echo "✅ All required outputs extracted successfully"
 
     - name: 📤 Deploy Website
       if: github.event.inputs.action != 'destroy-only'
       run: |
         echo "📤 Deploying website files..."
+        echo "🔍 Using S3 bucket: $S3_BUCKET"
+        
+        # Verify website directory exists
+        if [ ! -d "./website" ]; then
+          echo "❌ ERROR: ./website directory not found!"
+          echo "🔍 Current directory contents:"
+          ls -la
+          exit 1
+        fi
+        
+        # Verify required files exist
+        required_files=("./website/index.html" "./website/css/styles.css" "./website/js/visitor-counter.js")
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ ERROR: Required file $file not found!"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        # Deploy to S3
         aws s3 sync ./website/ s3://$S3_BUCKET/ --delete
         aws s3 cp ./website/index.html s3://$S3_BUCKET/index.html --content-type "text/html"
         aws s3 cp ./website/css/styles.css s3://$S3_BUCKET/css/styles.css --content-type "text/css"
         aws s3 cp ./website/js/visitor-counter.js s3://$S3_BUCKET/js/visitor-counter.js --content-type "application/javascript"
+        
+        echo "✅ Website deployment completed"
 
     - name: 🧪 Test Deployment
       if: github.event.inputs.action != 'destroy-only'
