@@ -1,5 +1,19 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
+  }
+}
+
 resource "aws_s3_bucket" "cloud_resume_bucket" {
   bucket = "cloud-resume-${var.environment}-${random_string.bucket_suffix.result}"
+  force_destroy = var.force_destroy
 
   tags = {
     Name        = "CloudResumeBucket-${var.environment}"
@@ -7,20 +21,26 @@ resource "aws_s3_bucket" "cloud_resume_bucket" {
   }
 }
 
-resource "aws_s3_bucket_website_configuration" "cloud_resume_bucket_website" {
-    bucket = aws_s3_bucket.cloud_resume_bucket.id
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
 
-    index_document {
-        suffix = "index.html"
-    }
+resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
 
-    error_document {
-        key = "error.html"
-    }
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "cloud_resume_bucket_public_access_block" {
-    bucket = aws_s3_bucket.cloud_resume_bucket.id
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
 
   block_public_acls       = false
   block_public_policy     = false
@@ -28,11 +48,9 @@ resource "aws_s3_bucket_public_access_block" "cloud_resume_bucket_public_access_
   restrict_public_buckets = false
 }
 
-# Bucket policy for public read access
 resource "aws_s3_bucket_policy" "cloud_resume_policy" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
-
-  depends_on = [aws_s3_bucket_public_access_block.cloud_resume_pab]
+  depends_on = [aws_s3_bucket_public_access_block.cloud_resume_bucket_public_access_block]
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -46,4 +64,11 @@ resource "aws_s3_bucket_policy" "cloud_resume_policy" {
       }
     ]
   })
+}
+
+resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
