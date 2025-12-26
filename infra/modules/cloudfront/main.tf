@@ -45,9 +45,15 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_cloudfront_origin_access_control" "s3_oac" {
-    name                              = "cloud-resume-${var.environment}-oac"
-    description                       = "OAC for S3 bucket access"
-    origin_access_control_origin_type = "s3"
-    signing_behavior                  = "always"
-    signing_protocol                  = "sigv4"
+  name                              = "cloud-resume-${var.environment}-oac-${random_string.suffix.result}"
+  description                       = "OAC for S3 bucket access"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
 }

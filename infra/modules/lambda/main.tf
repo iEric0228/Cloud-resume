@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
+  }
+}
+
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "${path.module}/../../../backend/lambda"  # Your Python code location
@@ -5,9 +18,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "visitor-counter-lambda-role-${var.environment}"
-
-  #Trust policy - allow Lambda to assume this role 
+  name = "visitor-counter-lambda-role-${var.environment}-${random_string.lambda_suffix.result}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -20,6 +31,12 @@ resource "aws_iam_role" "lambda_role" {
       }
     ]
   })
+}
+
+resource "random_string" "lambda_suffix" {
+  length  = 6
+  special = false
+  upper   = false
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
