@@ -310,6 +310,43 @@ jobs:
         
         echo "🎉 Deployment completed! Visit your resume at: $WEBSITE_URL"
 
+    - name: 🐛 Debug Lambda Function
+      if: github.event.inputs.action != 'destroy-only'
+      run: |
+        echo "🔍 Debugging Lambda function..."
+        
+        # Get Lambda function name and details
+        cd infra/environments/dev
+        LAMBDA_NAME=$(terraform output -raw lambda_function_name 2>/dev/null || echo "")
+        cd ../../../
+        
+        if [ ! -z "$LAMBDA_NAME" ]; then
+          echo "📋 Lambda function: $LAMBDA_NAME"
+          
+          # Check Lambda configuration
+          echo "🔍 Lambda configuration:"
+          aws lambda get-function-configuration --function-name "$LAMBDA_NAME"
+          
+          # Test the Lambda function directly
+          echo "🧪 Testing Lambda function directly..."
+          aws lambda invoke \
+            --function-name "$LAMBDA_NAME" \
+            --payload '{}' \
+            --output json \
+            lambda_response.json
+            
+          echo "📄 Lambda direct response:"
+          cat lambda_response.json
+          
+          # Check recent logs
+          echo "📊 Recent CloudWatch logs (last 5 minutes):"
+          LOG_GROUP="/aws/lambda/$LAMBDA_NAME"
+          aws logs describe-log-groups --log-group-name-prefix "$LOG_GROUP" --query 'logGroups[0].logGroupName' --output text | \
+          xargs -I {} aws logs filter-log-events --log-group-name {} --start-time $(date -d '5 minutes ago' +%s)000 --query 'events[].message' --output text || echo "No recent logs found"
+        else
+          echo "❌ Could not find Lambda function name"
+        fi
+
     - name: 🧪 Test Deployment
       if: github.event.inputs.action != 'destroy-only'
       run: |

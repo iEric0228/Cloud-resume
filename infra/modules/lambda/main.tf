@@ -89,3 +89,63 @@ resource "aws_lambda_function" "visitor_counter" {
     Environment = var.environment
   }
 }
+
+resource "aws_lambda_function" "visitor_counter" {
+  filename         = data.archive_file.lambda_zip.output_path
+  function_name    = "cloud-resume-visitor-counter-${var.environment}"
+  role            = aws_iam_role.lambda_role.arn
+  handler         = "handler.lambda_handler"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  runtime         = "python3.9"
+  timeout         = 15
+
+  environment {
+    variables = {
+      # ✅ FIX: Make sure this matches your DynamoDB table name exactly
+      TABLE_NAME = "cloud-resume-visitor-count-${var.environment}"
+    }
+  }
+
+  tags = {
+    Name        = "CloudResumeVisitorCounter-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+# IAM policy for Lambda to access DynamoDB and CloudWatch
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "cloud-resume-lambda-policy-${var.environment}"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query", 
+          "dynamodb:Scan"
+        ]
+        # ✅ FIX: Use the exact table ARN pattern
+        Resource = "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/cloud-resume-visitor-count-${var.environment}"
+      }
+    ]
+  })
+}
+
+# ✅ ADD: Data sources for region and account ID
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
