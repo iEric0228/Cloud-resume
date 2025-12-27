@@ -89,11 +89,48 @@ jobs:
         echo "🚀 Deploying cloud resume infrastructure..."
         terraform init
         
-        # ✅ Enhanced resource checking and importing
         echo "🔍 Checking for existing resources..."
         
+        # ✅ ENHANCED: More robust import with state checking
+        echo "👥 Checking IAM role..."
+        if terraform state show module.lambda.aws_iam_role.lambda_role 2>/dev/null; then
+          echo "✅ IAM role already in Terraform state"
+        elif aws iam get-role --role-name cloud-resume-lambda-role-dev 2>/dev/null; then
+          echo "📋 IAM role exists in AWS, importing to Terraform state..."
+          terraform import module.lambda.aws_iam_role.lambda_role cloud-resume-lambda-role-dev || {
+            echo "⚠️ IAM role import failed, will try to recreate"
+            # Delete the existing role to allow recreation
+            echo "🗑️ Removing existing IAM role to allow recreation..."
+            aws iam list-attached-role-policies --role-name cloud-resume-lambda-role-dev --query "AttachedPolicies[].PolicyArn" --output text | tr '\t' '\n' | \
+            xargs -r -I {} aws iam detach-role-policy --role-name cloud-resume-lambda-role-dev --policy-arn {}
+            
+            aws iam list-role-policies --role-name cloud-resume-lambda-role-dev --query "PolicyNames" --output text | tr '\t' '\n' | \
+            xargs -r -I {} aws iam delete-role-policy --role-name cloud-resume-lambda-role-dev --policy-name {}
+            
+            aws iam delete-role --role-name cloud-resume-lambda-role-dev
+            echo "✅ Existing IAM role cleaned up"
+          }
+        else
+          echo "👥 IAM role doesn't exist, will create new one"
+        fi
+        
+        echo "📋 Checking IAM role policy..."
+        if terraform state show module.lambda.aws_iam_role_policy.lambda_policy 2>/dev/null; then
+          echo "✅ IAM role policy already in Terraform state"
+        elif aws iam get-role-policy --role-name cloud-resume-lambda-role-dev --policy-name cloud-resume-lambda-policy-dev 2>/dev/null; then
+          echo "📋 IAM role policy exists, importing to Terraform state..."
+          terraform import module.lambda.aws_iam_role_policy.lambda_policy cloud-resume-lambda-role-dev:cloud-resume-lambda-policy-dev || {
+            echo "⚠️ IAM role policy import failed or already in state"
+          }
+        else
+          echo "📋 IAM role policy doesn't exist, will create new one"
+        fi
+        
         # Check and import DynamoDB table
-        if aws dynamodb describe-table --table-name cloud-resume-visitor-count-dev 2>/dev/null; then
+        echo "📊 Checking DynamoDB table..."
+        if terraform state show module.dynamodb.aws_dynamodb_table.visitor_count 2>/dev/null; then
+          echo "✅ DynamoDB table already in Terraform state"
+        elif aws dynamodb describe-table --table-name cloud-resume-visitor-count-dev 2>/dev/null; then
           echo "📋 DynamoDB table exists, importing to Terraform state..."
           terraform import module.dynamodb.aws_dynamodb_table.visitor_count cloud-resume-visitor-count-dev || {
             echo "⚠️ Table import failed or already in state"
