@@ -16,6 +16,11 @@ resource "aws_api_gateway_rest_api" "visitor_api" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+
+  tags = {
+    Name        = "CloudResumeAPI-${var.environment}"
+    Environment = var.environment
+  }
 }
 
 # API Gateway Resource
@@ -61,7 +66,7 @@ resource "aws_api_gateway_integration" "cors_integration" {
   type = "MOCK"
   
   request_templates = {
-    "application/json" = "{'statusCode': 200}"
+    "application/json" = "{\"statusCode\": 200}"
   }
 }
 
@@ -72,8 +77,8 @@ resource "aws_api_gateway_method_response" "count_response" {
   http_method = aws_api_gateway_method.count_method.http_method
   status_code = "200"
 
-  response_headers = {
-    "Access-Control-Allow-Origin" = true
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
   }
 }
 
@@ -84,10 +89,10 @@ resource "aws_api_gateway_method_response" "cors_response" {
   http_method = aws_api_gateway_method.count_options.http_method
   status_code = "200"
 
-  response_headers = {
-    "Access-Control-Allow-Headers" = true
-    "Access-Control-Allow-Methods" = true
-    "Access-Control-Allow-Origin"  = true
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
   }
 }
 
@@ -98,10 +103,10 @@ resource "aws_api_gateway_integration_response" "cors_integration_response" {
   http_method = aws_api_gateway_method.count_options.http_method
   status_code = aws_api_gateway_method_response.cors_response.status_code
 
-  response_headers = {
-    "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "Access-Control-Allow-Methods" = "'GET,OPTIONS'"
-    "Access-Control-Allow-Origin"  = "'*'"
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
 
@@ -124,5 +129,20 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.visitor_api.id
-  stage_name  = "prod"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Separate stage resource
+resource "aws_api_gateway_stage" "prod" {
+  deployment_id = aws_api_gateway_deployment.api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.visitor_api.id
+  stage_name    = "prod"
+
+  tags = {
+    Name        = "CloudResumeAPIStage-${var.environment}"
+    Environment = var.environment
+  }
 }
