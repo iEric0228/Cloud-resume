@@ -13,14 +13,12 @@ class VisitorCounter {
     console.log('🔄 Initializing visitor counter...');
     console.log('📡 API URL:', this.apiUrl);
         
-    // ✅ Check if URL is still the PLACEHOLDER
     if (this.apiUrl === 'REPLACE_WITH_API_URL') {
       console.warn('⚠️ API URL not replaced - visitor counter disabled');
       this.showError('API URL not configured');
       return;
     }
-        
-    // ✅ Continue with the visitor counter logic...
+
     try {
       await this.updateCounter();
     } catch (error) {
