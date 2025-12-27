@@ -22,7 +22,6 @@ resource "random_string" "bucket_suffix" {
 # S3 bucket for hosting
 resource "aws_s3_bucket" "cloud_resume_bucket" {
   bucket        = "cloud-resume-${var.environment}-${random_string.bucket_suffix.result}"
-  force_destroy = var.force_destroy
 
   tags = {
     Name        = "CloudResumeBucket-${var.environment}"
@@ -30,11 +29,11 @@ resource "aws_s3_bucket" "cloud_resume_bucket" {
   }
 }
 
-# ✅ FIX: Configure public access block FIRST, then policy
+# ✅ CRITICAL: Configure public access block FIRST
 resource "aws_s3_bucket_public_access_block" "cloud_resume_block_public" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
 
-  # ✅ CHANGE: Allow public policies for website hosting
+  # Allow public policies for static website hosting
   block_public_acls       = false
   block_public_policy     = false
   ignore_public_acls      = false
@@ -54,19 +53,19 @@ resource "aws_s3_bucket_website_configuration" "cloud_resume_website" {
   }
 }
 
-# Versioning
+# Versioning (disabled for easier cleanup)
 resource "aws_s3_bucket_versioning" "cloud_resume_versioning" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
   versioning_configuration {
-    status = "Enabled"
+    status = "Suspended"
   }
 }
 
-# ✅ FIX: Bucket policy with proper dependency
+# ✅ FIXED: Bucket policy with proper dependency
 resource "aws_s3_bucket_policy" "cloud_resume_policy" {
-  bucket     = aws_s3_bucket.cloud_resume_bucket.id
+  bucket = aws_s3_bucket.cloud_resume_bucket.id
   
-  # ✅ CRITICAL: Wait for public access block to be configured
+  # Wait for public access block to be configured first
   depends_on = [aws_s3_bucket_public_access_block.cloud_resume_block_public]
 
   policy = jsonencode({
@@ -83,7 +82,7 @@ resource "aws_s3_bucket_policy" "cloud_resume_policy" {
   })
 }
 
-# CORS configuration for API calls
+# CORS configuration
 resource "aws_s3_bucket_cors_configuration" "cloud_resume_cors" {
   bucket = aws_s3_bucket.cloud_resume_bucket.id
 
