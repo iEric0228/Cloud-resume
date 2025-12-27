@@ -4,13 +4,13 @@ output "s3_bucket_name" {
 }
 
 output "website_url" {
-  description = "CloudFront distribution URL"
-  value       = "https://${module.cloudfront.distribution_domain_name}"
+  description = "Website URL"
+  value       = module.cloudfront.website_url
 }
 
 output "api_url" {
   description = "API Gateway URL for visitor counter"
-  value       = "${module.api_gateway.api_url}/count"
+  value       = module.api_gateway.api_url
 }
 
 output "lambda_function_name" {

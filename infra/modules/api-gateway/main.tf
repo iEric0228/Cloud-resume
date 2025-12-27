@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -7,55 +8,121 @@ terraform {
   }
 }
 
-# HTTP API - the main gateway
-resource "aws_apigatewayv2_api" "visitor_api" {
-  name          = "visitor-counter-api-${var.environment}"
-  protocol_type = "HTTP"
-
-  cors_configuration {
-    allow_origins = length(var.cors_origins) > 0 ? var.cors_origins : ["*"]
-    allow_methods = ["GET", "OPTIONS"]
-    allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key"]
-  }
-
-  tags = {
-    Name        = "VisitorCounterAPI-${var.environment}"
-    Environment = var.environment
+# API Gateway REST API
+resource "aws_api_gateway_rest_api" "visitor_api" {
+  name        = "cloud-resume-api-${var.environment}"
+  description = "API for Cloud Resume visitor counter"
+  
+  endpoint_configuration {
+    types = ["REGIONAL"]
   }
 }
 
-# Lambda Integration - connects API to your function
-resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id             = aws_apigatewayv2_api.visitor_api.id
-  integration_type   = "AWS_PROXY"
-  integration_uri    = var.lambda_invoke_arn
-  integration_method = "POST"
+# API Gateway Resource
+resource "aws_api_gateway_resource" "count_resource" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  parent_id   = aws_api_gateway_rest_api.visitor_api.root_resource_id
+  path_part   = "count"
 }
 
-# Route - defines the endpoint (GET /count)
-resource "aws_apigatewayv2_route" "get_count" {
-  api_id    = aws_apigatewayv2_api.visitor_api.id
-  route_key = "GET /count"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+# API Gateway Method (GET)
+resource "aws_api_gateway_method" "count_method" {
+  rest_api_id   = aws_api_gateway_rest_api.visitor_api.id
+  resource_id   = aws_api_gateway_resource.count_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
 }
 
-# Stage - deployment environment (prod)
-resource "aws_apigatewayv2_stage" "prod" {
-  api_id      = aws_apigatewayv2_api.visitor_api.id
-  name        = "prod"
-  auto_deploy = true
+# API Gateway Method (OPTIONS for CORS)
+resource "aws_api_gateway_method" "count_options" {
+  rest_api_id   = aws_api_gateway_rest_api.visitor_api.id
+  resource_id   = aws_api_gateway_resource.count_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
 
-  tags = {
-    Name        = "VisitorCounterAPI-${var.environment}-prod"
-    Environment = var.environment
+# API Gateway Integration (GET)
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  resource_id = aws_api_gateway_resource.count_resource.id
+  http_method = aws_api_gateway_method.count_method.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = var.lambda_invoke_arn
+}
+
+# API Gateway Integration (OPTIONS for CORS)
+resource "aws_api_gateway_integration" "cors_integration" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  resource_id = aws_api_gateway_resource.count_resource.id
+  http_method = aws_api_gateway_method.count_options.http_method
+
+  type = "MOCK"
+  
+  request_templates = {
+    "application/json" = "{'statusCode': 200}"
   }
 }
 
-# Lambda Permission - allows API Gateway to invoke Lambda
-resource "aws_lambda_permission" "api_gateway_invoke" {
+# API Gateway Method Response (GET)
+resource "aws_api_gateway_method_response" "count_response" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  resource_id = aws_api_gateway_resource.count_resource.id
+  http_method = aws_api_gateway_method.count_method.http_method
+  status_code = "200"
+
+  response_headers = {
+    "Access-Control-Allow-Origin" = true
+  }
+}
+
+# API Gateway Method Response (OPTIONS)
+resource "aws_api_gateway_method_response" "cors_response" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  resource_id = aws_api_gateway_resource.count_resource.id
+  http_method = aws_api_gateway_method.count_options.http_method
+  status_code = "200"
+
+  response_headers = {
+    "Access-Control-Allow-Headers" = true
+    "Access-Control-Allow-Methods" = true
+    "Access-Control-Allow-Origin"  = true
+  }
+}
+
+# API Gateway Integration Response (OPTIONS)
+resource "aws_api_gateway_integration_response" "cors_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  resource_id = aws_api_gateway_resource.count_resource.id
+  http_method = aws_api_gateway_method.count_options.http_method
+  status_code = aws_api_gateway_method_response.cors_response.status_code
+
+  response_headers = {
+    "Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "Access-Control-Allow-Methods" = "'GET,OPTIONS'"
+    "Access-Control-Allow-Origin"  = "'*'"
+  }
+}
+
+# Lambda permission for API Gateway
+resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.visitor_api.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.visitor_api.execution_arn}/*/*"
+}
+
+# API Gateway Deployment
+resource "aws_api_gateway_deployment" "api_deployment" {
+  depends_on = [
+    aws_api_gateway_method.count_method,
+    aws_api_gateway_method.count_options,
+    aws_api_gateway_integration.lambda_integration,
+    aws_api_gateway_integration.cors_integration,
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.visitor_api.id
+  stage_name  = "prod"
 }
