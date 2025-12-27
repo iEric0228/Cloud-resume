@@ -12,3 +12,8 @@ output "api_endpoint" {
   description = "The base endpoint of the API Gateway"
   value       = aws_api_gateway_deployment.api_deployment.invoke_url
 }
+
+output "stage_name" {
+  description = "The API Gateway stage name"
+  value       = aws_api_gateway_stage.prod.stage_name
+}

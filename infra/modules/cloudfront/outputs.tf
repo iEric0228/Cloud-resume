@@ -12,3 +12,8 @@ output "distribution_arn" {
   description = "CloudFront distribution ARN"
   value       = aws_cloudfront_distribution.this.arn  
 }
+
+output "website_url" {
+  description = "CloudFront distribution domain name"
+  value       = "https://${aws_cloudfront_distribution.this.domain_name}"
+}
