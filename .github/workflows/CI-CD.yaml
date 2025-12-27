@@ -223,25 +223,58 @@ jobs:
         
         # Update visitor counter with API URL
         echo "🔄 Updating visitor counter with API URL..."
+        echo "🔍 API_URL variable contains: '$API_URL'"
+        
         if [[ -f "website/js/visitor-counter.js" ]]; then
+          # Verify API_URL is not empty
+          if [[ -z "$API_URL" ]]; then
+            echo "❌ ERROR: API_URL is empty!"
+            exit 1
+          fi
+          
+          # Show original content
+          echo "📄 Original visitor-counter.js content (first 10 lines):"
+          head -10 website/js/visitor-counter.js
+          
           # Create backup
           cp website/js/visitor-counter.js website/js/visitor-counter.js.bak
+          echo "✅ Created backup: website/js/visitor-counter.js.bak"
           
-          # Replace API URL (using different delimiter to avoid issues with URL slashes)
-          sed -i "s|REPLACE_WITH_API_URL|${API_URL}|g" website/js/visitor-counter.js
+          # ✅ ENHANCED: More robust replacement with error checking
+          echo "🔄 Performing URL replacement..."
+          if sed "s|REPLACE_WITH_API_URL|${API_URL}|g" website/js/visitor-counter.js.bak > website/js/visitor-counter.js; then
+            echo "✅ sed command executed successfully"
+          else
+            echo "❌ sed command failed!"
+            exit 1
+          fi
           
           # Verify replacement worked
           if grep -q "REPLACE_WITH_API_URL" website/js/visitor-counter.js; then
-            echo "⚠️ WARNING: API URL replacement may have failed"
-            echo "Searching for REPLACE_WITH_API_URL:"
+            echo "⚠️ WARNING: API URL replacement failed - placeholder still exists!"
+            echo "🔍 Lines containing REPLACE_WITH_API_URL:"
             grep -n "REPLACE_WITH_API_URL" website/js/visitor-counter.js || true
+            echo "🔍 Full file content after replacement:"
+            cat website/js/visitor-counter.js
+            exit 1
           else
             echo "✅ API URL replacement successful"
-            echo "New API URL in file:"
+            echo "🔍 New API URL in file:"
             grep -n "apiUrl.*=" website/js/visitor-counter.js | head -1 || true
+            echo "🔍 Verification - searching for the actual API URL:"
+            grep -n "$API_URL" website/js/visitor-counter.js || echo "⚠️ API URL not found in file"
           fi
+          
+          # Show modified content
+          echo "📄 Modified visitor-counter.js content (first 10 lines):"
+          head -10 website/js/visitor-counter.js
+          
         else
           echo "❌ ERROR: visitor-counter.js not found"
+          echo "🔍 Current directory contents:"
+          ls -la
+          echo "🔍 Website directory contents:"
+          ls -la website/ || echo "website/ directory not found"
           exit 1
         fi
         
