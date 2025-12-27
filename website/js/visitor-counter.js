@@ -13,13 +13,22 @@ class VisitorCounter {
     console.log('🔄 Initializing visitor counter...');
     console.log('📡 API URL:', this.apiUrl);
         
-    // ✅ FIXED: Check if URL is still the PLACEHOLDER (not the real URL!)
-    if (this.apiUrl === 'REPLACE_WITH_API_URL') {
+    // ✅ FIX: Check for placeholder text that is unique
+    if (this.apiUrl.includes('REPLACE_WITH') || this.apiUrl === 'REPLACE_WITH_API_URL') {
       console.warn('⚠️ API URL not replaced - visitor counter disabled');
       this.showError('API URL not configured');
       return;
     }
+    
+    // ✅ ADD: Validate API URL format
+    if (!this.apiUrl || !this.apiUrl.startsWith('https://')) {
+      console.warn('⚠️ Invalid API URL format:', this.apiUrl);
+      this.showError('Invalid API URL');
+      return;
+    }
 
+    console.log('✅ API URL validated, proceeding with counter initialization');
+    
     try {
       await this.updateCounter();
     } catch (error) {
