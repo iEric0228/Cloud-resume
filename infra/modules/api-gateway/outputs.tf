@@ -1,6 +1,6 @@
 output "api_url" {
   description = "The API Gateway invoke URL"
-  value       = "${aws_api_gateway_deployment.api_deployment.invoke_url}/count"
+  value       = "${aws_api_gateway_stage.prod.invoke_url}/count"
 }
 
 output "api_id" {
@@ -10,7 +10,7 @@ output "api_id" {
 
 output "api_endpoint" {
   description = "The base endpoint of the API Gateway"
-  value       = aws_api_gateway_deployment.api_deployment.invoke_url
+  value       = aws_api_gateway_stage.prod.invoke_url
 }
 
 output "stage_name" {
