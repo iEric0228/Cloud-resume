@@ -239,29 +239,27 @@ jobs:
           cp website/js/visitor-counter.js website/js/visitor-counter.js.bak
           echo "✅ Created backup: website/js/visitor-counter.js.bak"
           
-          # ✅ ENHANCED: More robust replacement with error checking
+          # ✅ ENHANCED: More precise replacement - only replace the assignment line
           echo "🔄 Performing URL replacement..."
-          if sed "s|REPLACE_WITH_API_URL|${API_URL}|g" website/js/visitor-counter.js.bak > website/js/visitor-counter.js; then
-            echo "✅ sed command executed successfully"
-          else
-            echo "❌ sed command failed!"
-            exit 1
-          fi
+          sed "s|this\.apiUrl = 'REPLACE_WITH_API_URL'|this.apiUrl = '${API_URL}'|g" website/js/visitor-counter.js.bak > website/js/visitor-counter.js
+          
+          echo "✅ sed command executed successfully"
           
           # Verify replacement worked
           if grep -q "REPLACE_WITH_API_URL" website/js/visitor-counter.js; then
-            echo "⚠️ WARNING: API URL replacement failed - placeholder still exists!"
+            echo "⚠️ WARNING: Some REPLACE_WITH_API_URL placeholders still exist"
             echo "🔍 Lines containing REPLACE_WITH_API_URL:"
             grep -n "REPLACE_WITH_API_URL" website/js/visitor-counter.js || true
-            echo "🔍 Full file content after replacement:"
-            cat website/js/visitor-counter.js
-            exit 1
+            
+            # Check if assignment was replaced correctly
+            if grep -q "this\.apiUrl = '${API_URL}'" website/js/visitor-counter.js; then
+              echo "✅ Assignment replacement successful (some placeholders remain for logic)"
+            else
+              echo "❌ Assignment replacement failed!"
+              exit 1
+            fi
           else
-            echo "✅ API URL replacement successful"
-            echo "🔍 New API URL in file:"
-            grep -n "apiUrl.*=" website/js/visitor-counter.js | head -1 || true
-            echo "🔍 Verification - searching for the actual API URL:"
-            grep -n "$API_URL" website/js/visitor-counter.js || echo "⚠️ API URL not found in file"
+            echo "✅ All placeholders replaced"
           fi
           
           # Show modified content
@@ -472,12 +470,47 @@ jobs:
           S3_BUCKET=$(terraform output -raw s3_bucket_name 2>/dev/null || echo "")
         fi
         
-        # Empty S3 bucket
+        # ✅ ENHANCED: Complete S3 bucket cleanup including versions
         if [ ! -z "$S3_BUCKET" ]; then
-          echo "🪣 Emptying S3 bucket..."
+          echo "🪣 Emptying S3 bucket completely..."
+          
+          # Delete all object versions and delete markers
+          echo "🗑️ Deleting all object versions..."
+          aws s3api list-object-versions --bucket "$S3_BUCKET" --output json | \
+          jq -r '.Versions[]? | "\(.Key) \(.VersionId)"' | \
+          while read key version_id; do
+            if [ ! -z "$key" ] && [ ! -z "$version_id" ]; then
+              echo "   Deleting version: $key ($version_id)"
+              aws s3api delete-object --bucket "$S3_BUCKET" --key "$key" --version-id "$version_id" || true
+            fi
+          done
+          
+          # Delete all delete markers
+          echo "🗑️ Deleting all delete markers..."
+          aws s3api list-object-versions --bucket "$S3_BUCKET" --output json | \
+          jq -r '.DeleteMarkers[]? | "\(.Key) \(.VersionId)"' | \
+          while read key version_id; do
+            if [ ! -z "$key" ] && [ ! -z "$version_id" ]; then
+              echo "   Deleting delete marker: $key ($version_id)"
+              aws s3api delete-object --bucket "$S3_BUCKET" --key "$key" --version-id "$version_id" || true
+            fi
+          done
+          
+          # Final cleanup with recursive delete
+          echo "🗑️ Final recursive delete..."
           aws s3 rm s3://$S3_BUCKET --recursive || true
+          
+          # Force empty bucket using sync
+          echo "🗑️ Force emptying bucket with sync..."
+          mkdir -p /tmp/empty-bucket
+          aws s3 sync /tmp/empty-bucket s3://$S3_BUCKET --delete || true
+          
+          echo "✅ S3 bucket emptied completely"
+        else
+          echo "⚠️ No S3 bucket found to clean up"
         fi
         
         # Destroy infrastructure
+        echo "🔨 Destroying Terraform infrastructure..."
         terraform destroy -auto-approve || true
         echo "✅ Cleanup completed!"
