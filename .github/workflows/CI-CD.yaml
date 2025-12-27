@@ -311,9 +311,10 @@ jobs:
           --content-type "text/css" \
           --cache-control "max-age=31536000"
           
+        # ✅ FIX: Upload the MODIFIED visitor-counter.js (with real API URL)
         aws s3 cp website/js/visitor-counter.js "s3://${S3_BUCKET}/js/visitor-counter.js" \
           --content-type "application/javascript" \
-          --cache-control "max-age=3600"
+          --cache-control "max-age=300"
         
         # Upload animation.js if it exists
         if [[ -f "website/js/animation.js" ]]; then
@@ -323,10 +324,12 @@ jobs:
           echo "✅ Uploaded animation.js"
         fi
         
-        # Restore original visitor-counter.js
+        echo "✅ Website files uploaded to S3 successfully!"
+        
+        # ✅ FIX: NOW restore original visitor-counter.js (AFTER uploading)
         if [[ -f "website/js/visitor-counter.js.bak" ]]; then
           mv website/js/visitor-counter.js.bak website/js/visitor-counter.js
-          echo "✅ Restored original visitor-counter.js"
+          echo "✅ Restored original visitor-counter.js for git cleanliness"
         fi
         
         echo "✅ Website deployment completed successfully!"
