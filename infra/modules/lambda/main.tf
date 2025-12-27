@@ -15,7 +15,7 @@ terraform {
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = "${path.root}/../../../backend/lambda/handler.py"
-  output_path = "${path.module}/visitor_counter.zip"
+  output_path = "${path.module}/lambda_package.zip"
 }
 
 resource "random_string" "lambda_suffix" {
@@ -74,9 +74,9 @@ resource "aws_lambda_function" "visitor_counter" {
   function_name    = "cloud-resume-visitor-counter-${var.environment}"
   role             = aws_iam_role.lambda_role.arn
   handler          = "handler.lambda_handler"
-  runtime          = "python3.9"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  timeout          = 10
+  runtime          = "python3.9"
+  timeout          = 15
 
   environment {
     variables = {

@@ -1,37 +1,27 @@
 name: '☁️ Cloud Resume CI/CD'
 
+# ✅ FIX: Remove automatic triggers, only manual
 on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'Action to perform'
+        description: 'Deployment Action'
+        required: true
+        default: 'deploy-test-destroy'
         type: choice
         options:
-          - deploy-test-keep
-          - deploy-test-destroy
-          - destroy-only
-        default: deploy-test-destroy
-      
+          - 'deploy-test-destroy'
+          - 'deploy-test-keep'  
+          - 'destroy-only'
       keep_alive_minutes:
-        description: 'Minutes to keep running (for demos)'
+        description: 'Keep alive time (minutes) for testing'
+        required: false
+        default: '5'
         type: string
-        default: '1'
-
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'website/**'
-      - 'infra/**'
-
-  push:
-    branches: [ main ]
-    paths:
-      - 'website/**'
-      - 'infra/**'
 
 env:
-  TF_VERSION: '1.5.0'
-  AWS_REGION: 'us-east-1'
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.6.0
 
 jobs:
   # Validation job (runs on PRs)
@@ -68,9 +58,8 @@ jobs:
         done
         echo "✅ Website files validation passed"
 
-  # Main deploy job (runs on push, manual dispatch)
+  # Main deploy job (runs on manual dispatch)
   deploy-resume:
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -288,18 +277,30 @@ jobs:
       if: github.event.inputs.action != 'destroy-only'
       run: |
         echo "🧪 Testing deployed resume..."
-        sleep 60  # Wait for CloudFront
+        sleep 30  # Reduced wait time
         
         # Test website
-        curl -f $WEBSITE_URL && echo "✅ Website working" || echo "❌ Website failed"
-        
-        # Test API
-        response=$(curl -s $API_URL/count)
-        echo "API Response: $response"
-        if echo "$response" | grep -q "visitor_count"; then
-          echo "✅ Visitor counter API working"
+        echo "Testing website..."
+        if curl -f -s "$WEBSITE_URL" > /dev/null; then
+          echo "✅ Website is accessible"
         else
-          echo "❌ API test failed"
+          echo "⚠️ Website test failed"
+        fi
+        
+        # Test API endpoint
+        echo "Testing API endpoint: $API_URL"
+        response=$(curl -s "$API_URL" 2>/dev/null || echo '{"error":"request_failed"}')
+        echo "🔍 API Response: $response"
+        
+        # Check if API returns expected format
+        if echo "$response" | grep -q "visitor_count"; then
+          echo "✅ Visitor counter API is working correctly"
+          visitor_count=$(echo "$response" | grep -o '"visitor_count":[0-9]*' | cut -d':' -f2)
+          echo "📊 Current visitor count: $visitor_count"
+        else
+          echo "⚠️ API test: Unexpected response format"
+          echo "Expected: {\"visitor_count\": number}"
+          echo "Got: $response"
         fi
 
     - name: 📊 Summary
@@ -308,15 +309,21 @@ jobs:
         echo "## ☁️ Cloud Resume Deployment" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**🌐 Live Website:** [$WEBSITE_URL]($WEBSITE_URL)" >> $GITHUB_STEP_SUMMARY
-        echo "**⚡ Visitor Counter API:** $API_URL/count" >> $GITHUB_STEP_SUMMARY
+        echo "**⚡ Visitor Counter API:** [$API_URL]($API_URL)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        keep_hours="${{ github.event.inputs.keep_alive_hours || '24' }}"
+        # ✅ FIX: Use correct input parameter name
+        keep_minutes="${{ github.event.inputs.keep_alive_minutes || '5' }}"
         if [ "${{ github.event.inputs.action }}" = "deploy-test-destroy" ]; then
-          echo "⏰ **Auto-cleanup scheduled in $keep_hours hour(s)**" >> $GITHUB_STEP_SUMMARY
+          echo "⏰ **Auto-cleanup scheduled in $keep_minutes minute(s)**" >> $GITHUB_STEP_SUMMARY
         else
           echo "✅ **Status:** Deployed and running" >> $GITHUB_STEP_SUMMARY
         fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+        echo "- **Website**: [Visit Resume]($WEBSITE_URL)" >> $GITHUB_STEP_SUMMARY
+        echo "- **API Test**: [Test Visitor Counter]($API_URL)" >> $GITHUB_STEP_SUMMARY
 
     - name: ⏳ Keep Running (Demo Period)
       if: github.event.inputs.action == 'deploy-test-keep' || github.event.inputs.action == 'deploy-test-destroy'
