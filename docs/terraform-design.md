@@ -1,10 +1,10 @@
 # Cloud Resume Challenge - Infrastructure Architecture
 
-## 🏗️ **Architecture Overview**
+## **Architecture Overview**
 
 This project implements a modern, scalable cloud resume website using AWS services, following Infrastructure as Code (IaC) best practices with Terraform. The architecture demonstrates professional DevOps engineering skills with modular design, security best practices, and cost optimization.
 
-## 🎯 **Project Goals**
+## **Project Goals**
 
 - **Serverless Architecture**: Fully managed services with automatic scaling
 - **Cost Optimization**: Pay-per-use services minimizing operational costs
@@ -12,7 +12,7 @@ This project implements a modern, scalable cloud resume website using AWS servic
 - **Professional Standards**: Modular, reusable, and maintainable code
 - **CI/CD Integration**: Automated testing and deployment pipelines
 
-## 🏛️ **High-Level Architecture**
+## **High-Level Architecture**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -54,7 +54,7 @@ This project implements a modern, scalable cloud resume website using AWS servic
                                 └─────────────────────┘
 ```
 
-## 🧩 **Terraform Module Architecture**
+## **Terraform Module Architecture**
 
 ### **Design Philosophy**
 
@@ -75,7 +75,7 @@ infra/
 └── .github/workflows/         # CI/CD automation
 ```
 
-## 📋 **Module Specifications**
+## **Module Specifications**
 
 ### **S3 Module** - Static Website Hosting
 ```hcl
@@ -87,10 +87,10 @@ Resources:
   - aws_s3_bucket_policy: CloudFront-only access (OAC)
 
 Security Features:
-  ✅ Public access completely blocked
-  ✅ CloudFront Origin Access Control (OAC)
-  ✅ Least privilege bucket policies
-  ✅ Encryption in transit and at rest
+  Public access completely blocked
+  CloudFront Origin Access Control (OAC)
+  Least privilege bucket policies
+  Encryption in transit and at rest
 
 Inputs: bucket_name, environment, cloudfront_distribution_arn
 Outputs: bucket_arn, bucket_domain_name, bucket_regional_domain_name
@@ -104,10 +104,10 @@ Resources:
   - aws_dynamodb_table_item: Initialize counter to zero
 
 Design Decisions:
-  ✅ Pay-per-request billing (cost-optimized for low traffic)
-  ✅ Single-item design for atomic increments
-  ✅ Lifecycle management prevents counter resets
-  ✅ Environment-specific table naming
+  Pay-per-request billing (cost-optimized for low traffic)
+  Single-item design for atomic increments
+  Lifecycle management prevents counter resets
+  Environment-specific table naming
 
 Data Model:
   Partition Key: id (String) = "visitor_count"
@@ -127,16 +127,16 @@ Resources:
   - data.archive_file: Automated code packaging
 
 Architecture Benefits:
-  ✅ Zero server management overhead
-  ✅ Automatic scaling to demand
-  ✅ Pay-per-invocation cost model
-  ✅ Built-in monitoring and logging
+  Zero server management overhead
+  Automatic scaling to demand
+  Pay-per-invocation cost model
+   Built-in monitoring and logging
 
 Security Model:
-  ✅ Principle of least privilege IAM
-  ✅ VPC-optional design for simplicity
-  ✅ Environment variable configuration
-  ✅ Structured error handling
+  Principle of least privilege IAM
+  VPC-optional design for simplicity
+  Environment variable configuration
+  Structured error handling
 
 Inputs: environment, dynamodb_table_name, dynamodb_table_arn
 Outputs: function_arn, function_name, function_invoke_arn
@@ -153,10 +153,10 @@ Resources:
   - aws_lambda_permission: API Gateway invoke permissions
 
 Technical Decisions:
-  ✅ HTTP API vs REST API (60% cost reduction)
-  ✅ Automatic CORS configuration
-  ✅ Lambda proxy integration for flexibility
-  ✅ Auto-deployment for faster iterations
+  HTTP API vs REST API (60% cost reduction)
+  Automatic CORS configuration
+  Lambda proxy integration for flexibility
+  Auto-deployment for faster iterations
 
 Inputs: environment, lambda_function_name, lambda_invoke_arn, cors_origins
 Outputs: api_url, api_id
@@ -170,22 +170,22 @@ Resources:
   - Origin Access Control (OAC): Secure S3 integration
 
 Performance Features:
-  ✅ Global edge locations for low latency
-  ✅ Intelligent caching strategies
-  ✅ HTTP to HTTPS redirection
-  ✅ Compression and optimization
+ Global edge locations for low latency
+ Intelligent caching strategies
+ HTTP to HTTPS redirection
+ Compression and optimization
 
 Security Features:
-  ✅ Origin Access Control (modern security)
-  ✅ Security headers injection
-  ✅ DDoS protection via AWS Shield
-  ✅ Geographic restrictions capability
+  Origin Access Control (modern security)
+  Security headers injection
+  DDoS protection via AWS Shield
+  Geographic restrictions capability
 
 Inputs: bucket_domain_name, bucket_arn
 Outputs: distribution_domain_name, distribution_id, distribution_arn
 ```
 
-## 🌍 **Environment Management Strategy**
+## **Environment Management Strategy**
 
 ### **Multi-Environment Architecture**
 ```hcl
@@ -215,13 +215,13 @@ Examples:
   - cloud-resume-dev-api-gateway
 
 Benefits:
-  ✅ Clear resource identification
-  ✅ Environment isolation
-  ✅ Easier cost tracking and management
-  ✅ Automated resource discovery
+  Clear resource identification
+  Environment isolation
+  Easier cost tracking and management
+  Automated resource discovery
 ```
 
-## 🔒 **Security Best Practices Implementation**
+## **Security Best Practices Implementation**
 
 ### **Defense in Depth Strategy**
 ```yaml
@@ -247,7 +247,7 @@ Monitoring & Auditing:
   - Infrastructure change tracking
 ```
 
-## 💰 **Cost Optimization Strategy**
+## **Cost Optimization Strategy**
 
 ### **Service Selection Rationale**
 ```yaml
@@ -281,7 +281,7 @@ Total Estimated Monthly Cost: $6-45/month
 - Resource tagging for cost allocation
 - Regular cost optimization reviews
 
-## 🚀 **Deployment Strategy**
+## **Deployment Strategy**
 
 ### **GitOps Workflow**
 ```yaml
@@ -302,7 +302,7 @@ Deployment Types:
   - Feature flags for gradual rollouts
 ```
 
-## 📊 **Monitoring and Observability**
+## **Monitoring and Observability**
 
 ### **Metrics and Logging**
 ```yaml
@@ -322,41 +322,41 @@ Business Metrics:
   - Cost per visitor trends
 ```
 
-## 🏆 **Engineering Best Practices Demonstrated**
+## **Engineering Best Practices Demonstrated**
 
 ### **Code Quality**
-- ✅ Modular, reusable Terraform modules
-- ✅ Comprehensive variable validation
-- ✅ Detailed resource documentation
-- ✅ Consistent naming conventions
-- ✅ Error handling and edge cases
+-  Modular, reusable Terraform modules
+-  Comprehensive variable validation
+-  Detailed resource documentation
+-  Consistent naming conventions
+-  Error handling and edge cases
 
 ### **Security**  
-- ✅ Principle of least privilege
-- ✅ Secure defaults configuration
-- ✅ Regular security reviews
-- ✅ Compliance with AWS Well-Architected Framework
+-  Principle of least privilege
+-  Secure defaults configuration
+-  Regular security reviews
+-  Compliance with AWS Well-Architected Framework
 
 ### **Operational Excellence**
-- ✅ Infrastructure as Code (100% Terraform)
-- ✅ Automated testing and deployment
-- ✅ Monitoring and alerting
-- ✅ Documentation and knowledge sharing
-- ✅ Disaster recovery planning
+-  Infrastructure as Code (100% Terraform)
+-  Automated testing and deployment
+-  Monitoring and alerting
+-  Documentation and knowledge sharing
+-  Disaster recovery planning
 
 ### **Performance Efficiency**
-- ✅ Global content delivery via CloudFront
-- ✅ Serverless architecture for auto-scaling
-- ✅ Optimized caching strategies
-- ✅ Efficient data access patterns
+-  Global content delivery via CloudFront
+-  Serverless architecture for auto-scaling
+-  Optimized caching strategies
+-  Efficient data access patterns
 
 ### **Cost Optimization**
-- ✅ Right-sized resources for workload
-- ✅ Pay-per-use service selection
-- ✅ Automated resource lifecycle management
-- ✅ Regular cost reviews and optimization
+-  Right-sized resources for workload
+-  Pay-per-use service selection
+-  Automated resource lifecycle management
+-  Regular cost reviews and optimization
 
-## 🔄 **Future Enhancements**
+## **Future Enhancements**
 
 ### **Planned Improvements**
 - Custom domain with Route53 and ACM certificates
@@ -369,7 +369,7 @@ Business Metrics:
 
 ---
 
-## 📝 **Getting Started**
+## **Getting Started**
 
 ### **Prerequisites**
 - AWS Account with appropriate permissions
