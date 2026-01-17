@@ -1,4 +1,4 @@
-# ☁️ Cloud Resume Challenge - AWS Serverless Portfolio
+# Cloud Resume Challenge - AWS Serverless Portfolio
 
 > **A modern, serverless resume website demonstrating cloud architecture, DevOps practices, and full-stack development skills.**
 
@@ -7,11 +7,11 @@
 [![Terraform](https://img.shields.io/badge/Terraform-623CE4?style=flat-square&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Infrastructure](https://img.shields.io/badge/Infrastructure-as%20Code-blue?style=flat-square)]()
 
-**🌐 Live Demo:** [Coming Soon - Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
+**Live Demo:** [Coming Soon - Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This project implements a **serverless, highly-available resume website** with real-time visitor tracking, demonstrating modern cloud architecture patterns and DevOps best practices.
 
@@ -34,20 +34,20 @@ This project implements a **serverless, highly-available resume website** with r
                                                └─────────────────┘
 ```
 
-### **🎯 Key Features**
+### **Key Features**
 
-- **⚡ Serverless Architecture** - Zero server management, infinite scalability
-- **🌍 Global CDN** - Sub-second load times worldwide via CloudFront
-- **📊 Real-time Analytics** - Live visitor counter with DynamoDB persistence
-- **🔒 Security First** - HTTPS everywhere, IAM roles, CORS policies
-- **💰 Cost Optimized** - Pay-per-use pricing, ~$1-2/month operational cost
-- **🚀 CI/CD Pipeline** - Automated testing, deployment, and cleanup
-- **🏗️ Infrastructure as Code** - 100% Terraform, version controlled
-- **📱 Responsive Design** - Mobile-first, accessible UI/UX
+- **erverless Architecture** - Zero server management, infinite scalability
+- **Global CDN** - Sub-second load times worldwide via CloudFront
+- **Real-time Analytics** - Live visitor counter with DynamoDB persistence
+- **Security First** - HTTPS everywhere, IAM roles, CORS policies
+- **Cost Optimized** - Pay-per-use pricing, ~$1-2/month operational cost
+- **CI/CD Pipeline** - Automated testing, deployment, and cleanup
+- **Infrastructure as Code** - 100% Terraform, version controlled
+- **Responsive Design** - Mobile-first, accessible UI/UX
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### **Frontend**
 - **HTML5/CSS3** - Semantic markup, modern styling
@@ -70,7 +70,7 @@ This project implements a **serverless, highly-available resume website** with r
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### **Prerequisites**
 - AWS Account with appropriate permissions
@@ -111,25 +111,25 @@ terraform output website_url
 
 ---
 
-## 🔄 CI/CD Pipeline
+## CI/CD Pipeline
 
 ### **Automated Workflows**
 
 The project includes a sophisticated CI/CD pipeline that demonstrates enterprise DevOps practices:
 
-#### **🎯 Pull Request Validation**
+#### **Pull Request Validation**
 - Terraform syntax and formatting validation
 - Website file structure verification  
 - Infrastructure plan generation
 - Automatic branch cleanup after merge
 
-#### **🚀 Deployment Pipeline**
+#### **Deployment Pipeline**
 - Infrastructure provisioning via Terraform
 - Website deployment to S3/CloudFront
 - Integration testing (website + API)
 - Cost-optimized cleanup options
 
-#### **💰 Cost Management**
+#### **Cost Management**
 ```yaml
 Deploy Modes:
   • deploy-test-destroy: $0.00 (auto-cleanup after testing)
@@ -141,19 +141,19 @@ Deploy Modes:
 
 ```bash
 # Development testing (zero cost)
-gh workflow run "☁️ Cloud Resume CI/CD" \
+gh workflow run "Cloud Resume CI/CD" \
   --field action=deploy-test-destroy \
   --field keep_alive_hours=2
 
 # Portfolio deployment (keep running)
-gh workflow run "☁️ Cloud Resume CI/CD" \
+gh workflow run "Cloud Resume CI/CD" \
   --field action=deploy-test-keep \
   --field keep_alive_hours=720  # 30 days
 ```
 
 ---
 
-## 📊 Performance & Monitoring
+## Performance & Monitoring
 
 ### **Performance Metrics**
 - **Website Load Time:** < 2 seconds globally
@@ -169,7 +169,7 @@ gh workflow run "☁️ Cloud Resume CI/CD" \
 
 ---
 
-## 💰 Cost Analysis
+## Cost Analysis
 
 ### **Monthly Operational Costs**
 ```
@@ -189,15 +189,15 @@ Total               |                 | ~$2.06/month
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
 ### **Implementation**
-- ✅ **HTTPS Everywhere** - SSL/TLS encryption
-- ✅ **IAM Roles** - Principle of least privilege
-- ✅ **CORS Policies** - Controlled API access
-- ✅ **Security Headers** - XSS, CSRF protection
-- ✅ **Input Validation** - API parameter sanitization
-- ✅ **VPC Isolation** - Network security (optional)
+- **HTTPS Everywhere** - SSL/TLS encryption
+- **IAM Roles** - Principle of least privilege
+- **CORS Policies** - Controlled API access
+- **Security Headers** - XSS, CSRF protection
+- **Input Validation** - API parameter sanitization
+- **VPC Isolation** - Network security (optional)
 
 ### **Compliance**
 - **OWASP Top 10** - Security best practices
@@ -206,7 +206,7 @@ Total               |                 | ~$2.06/month
 
 ---
 
-## 🧪 Testing Strategy
+## Testing Strategy
 
 ### **Automated Tests**
 - **Infrastructure Validation** - Terraform fmt, validate, plan
@@ -224,7 +224,7 @@ Total               |                 | ~$2.06/month
 
 ---
 
-## 📈 Future Enhancements
+## Future Enhancements
 
 ### **Phase 2 Features**
 - [ ] **Custom Domain** - Professional branding
@@ -241,7 +241,7 @@ Total               |                 | ~$2.06/month
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 This is a personal portfolio project, but feedback and suggestions are welcome!
 
@@ -254,18 +254,18 @@ This is a personal portfolio project, but feedback and suggestions are welcome!
 
 ---
 
-## 📝 Project Journey
+## Project Journey
 
 ### **Learning Outcomes**
 This project demonstrates proficiency in:
 
-- **☁️ Cloud Architecture** - AWS serverless services
-- **🏗️ Infrastructure as Code** - Terraform best practices  
-- **🔄 DevOps** - CI/CD pipelines, automation
-- **🛡️ Security** - AWS IAM, HTTPS, secure coding
-- **💰 Cost Optimization** - AWS billing, resource management
-- **📊 Monitoring** - CloudWatch, performance tuning
-- **🎯 Full-Stack Development** - Frontend + Backend + Infrastructure
+- **Cloud Architecture** - AWS serverless services
+- **Infrastructure as Code** - Terraform best practices  
+- **DevOps** - CI/CD pipelines, automation
+- **Security** - AWS IAM, HTTPS, secure coding
+- **Cost Optimization** - AWS billing, resource management
+- **Monitoring** - CloudWatch, performance tuning
+- **Full-Stack Development** - Frontend + Backend + Infrastructure
 
 ### **Technical Challenges Solved**
 - Serverless architecture design and implementation
@@ -278,7 +278,7 @@ This project demonstrates proficiency in:
 
 ---
 
-## 📚 Resources & References
+## Resources & References
 
 ### **AWS Documentation**
 - [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
@@ -292,27 +292,10 @@ This project demonstrates proficiency in:
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
+## Author
 
 **Eric Chiu**
-- 🌐 Portfolio: [Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
-- 💼 LinkedIn: [Eric Chiu](https://www.linkedin.com/in/eric-chiu-a610553a3/)  
-- 😼 GitHub: [@iEric0228](https://github.com/iEric0228)
-- 📧 Email: ericchiu0228@gmail.com
-
----
-
-<div align="center">
-
-**⭐ If this project helped you, please give it a star! ⭐**
-
-*Built with ❤️ using AWS, Terraform, and GitHub Actions*
-
-
-</div>
+- Portfolio: [Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
+- LinkedIn: [Eric Chiu](https://www.linkedin.com/in/eric-chiu-a610553a3/)  
+- GitHub: [@iEric0228](https://github.com/iEric0228)
+- Email: ericchiu0228@gmail.com
