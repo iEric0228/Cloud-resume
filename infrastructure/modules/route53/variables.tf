@@ -1,3 +1,8 @@
+variable "zone_id" {
+  description = "Route53 hosted zone ID (created by the calling environment)"
+  type        = string
+}
+
 variable "domain_name" {
   description = "Root domain name (e.g. ericchiu.page)"
   type        = string

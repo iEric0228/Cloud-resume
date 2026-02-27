@@ -1,19 +1,12 @@
 # ============================================================
 # Route53 Module
-# - Looks up the existing hosted zone for the domain
 # - Creates DNS CNAME records to validate the ACM certificate
 # - Runs aws_acm_certificate_validation (waits for DNS propagation)
 # - Creates A alias records: www + root → CloudFront
 #
-# PREREQUISITE: The hosted zone for var.domain_name must already
-# exist in Route53 (i.e. the domain must be registered or
-# delegated to Route53 name servers).
+# The hosted zone is created by the calling environment and
+# passed in via var.zone_id.
 # ============================================================
-
-data "aws_route53_zone" "main" {
-  name         = var.domain_name
-  private_zone = false
-}
 
 # ── Certificate Validation DNS Records ───────────────────────────────────────
 resource "aws_route53_record" "cert_validation" {
@@ -25,7 +18,7 @@ resource "aws_route53_record" "cert_validation" {
     }
   }
 
-  zone_id         = data.aws_route53_zone.main.zone_id
+  zone_id         = var.zone_id
   name            = each.value.name
   type            = each.value.type
   ttl             = 60
@@ -41,7 +34,7 @@ resource "aws_acm_certificate_validation" "this" {
 
 # ── www Alias → CloudFront ────────────────────────────────────────────────────
 resource "aws_route53_record" "www" {
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = var.zone_id
   name    = "www.${var.domain_name}"
   type    = "A"
 
@@ -54,7 +47,7 @@ resource "aws_route53_record" "www" {
 
 # ── Root Apex Alias → CloudFront ──────────────────────────────────────────────
 resource "aws_route53_record" "root" {
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = var.zone_id
   name    = var.domain_name
   type    = "A"
 

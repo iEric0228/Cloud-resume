@@ -27,3 +27,8 @@ output "lambda_function_name" {
   description = "Lambda function name for debugging"
   value       = module.lambda.function_name
 }
+
+output "route53_nameservers" {
+  description = "Nameservers for the hosted zone — set these at your domain registrar to activate DNS"
+  value       = aws_route53_zone.main.name_servers
+}
