@@ -25,5 +25,5 @@ variable "domain_name" {
 variable "enable_custom_domain" {
   description = "Enable custom domain with ACM certificate and Route53 records. Requires an existing Route53 hosted zone for domain_name. When false, the site is served from the CloudFront default domain."
   type        = bool
-  default     = false
+  default     = true
 }

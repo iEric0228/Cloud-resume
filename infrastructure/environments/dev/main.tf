@@ -6,13 +6,14 @@
 # When false, the site is served from the CloudFront default domain.
 #
 # Dependency chain:
+#   aws_route53_zone   → always created (provides nameservers)
 #   module.s3          → no deps
 #   module.dynamodb    → no deps
 #   module.lambda      → dynamodb
 #   module.api_gateway → lambda
 #   module.cloudfront  → s3 (+ route53 when custom domain enabled)
 #   module.acm         → (only when custom domain enabled)
-#   module.route53     → acm + cloudfront (only when custom domain enabled)
+#   module.route53     → zone + acm + cloudfront (only when custom domain enabled)
 # ============================================================
 
 terraform {
@@ -58,8 +59,17 @@ module "s3" {
   force_destroy = true
 }
 
+# ── Route53 Hosted Zone (always created so nameservers are available) ─────────
+resource "aws_route53_zone" "main" {
+  name = var.domain_name
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-zone"
+    Environment = var.environment
+  }
+}
+
 # ── ACM Certificate (only when custom domain is enabled) ─────────────────────
-# Requires an existing Route53 hosted zone for var.domain_name.
 module "acm" {
   count        = var.enable_custom_domain ? 1 : 0
   source       = "../../modules/acm"
@@ -69,9 +79,12 @@ module "acm" {
 }
 
 # ── Route53: validate cert + create alias records (only with custom domain) ──
+# Before enabling, update your domain registrar's nameservers to the
+# route53_nameservers output values and wait for DNS propagation.
 module "route53" {
   count                                 = var.enable_custom_domain ? 1 : 0
   source                                = "../../modules/route53"
+  zone_id                               = aws_route53_zone.main.zone_id
   domain_name                           = var.domain_name
   cloudfront_domain_name                = module.cloudfront.distribution_domain_name
   certificate_arn                       = module.acm[0].certificate_arn
