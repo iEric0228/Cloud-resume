@@ -21,9 +21,9 @@ on:
 env:
   AWS_REGION: us-east-1
   TF_VERSION: 1.9.0
-  TF_STATE_BUCKET: cloud-resume-tfstate-${{ secrets.AWS_ACCOUNT_ID }}
-  TF_STATE_KEY_DEV: dev/terraform.tfstate
-  TF_LOCK_TABLE: cloud-resume-tfstate-lock
+  TF_STATE_BUCKET: ericchiu-terraform-state
+  TF_STATE_KEY_DEV: cloud-resume/dev/terraform.tfstate
+  TF_LOCK_TABLE: terraform-state-lock
 
 jobs:
   # Validation job (runs on PRs)
