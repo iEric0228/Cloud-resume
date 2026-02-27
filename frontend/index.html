@@ -138,49 +138,30 @@
     <section class="section" aria-labelledby="projects-heading">
       <h2 id="projects-heading" class="section__title">Featured Projects</h2>
 
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-cloud" aria-hidden="true"></i>
-            Cloud Resume Challenge
-            <span class="project-card__badge">This Website</span>
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">AWS</li><li class="tag">Terraform</li>
-            <li class="tag">GitHub Actions</li><li class="tag">Python</li>
-          </ul>
-        </header>
-        <p class="project-card__description">
-          Serverless resume website backed by AWS S3, CloudFront (OAC), Lambda, API Gateway, and DynamoDB.
-          Full IaC with modular Terraform and automated CI/CD via GitHub Actions OIDC keyless auth.
-          Hosted at <strong>www.ericchiu.page</strong> with HTTPS enforced end-to-end.
-        </p>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/Cloud-resume" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-          <a href="https://www.ericchiu.page" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Live Site
-          </a>
-        </footer>
-      </article>
-
+      <!-- AI-SRE -->
       <article class="project-card">
         <header class="project-card__header">
           <h3 class="project-card__title">
             <i class="fas fa-robot" aria-hidden="true"></i>
-            AI-SRE Incident Analysis System
+            AI-Assisted SRE Incident Analysis System
           </h3>
           <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">AWS</li><li class="tag">Step Functions</li>
-            <li class="tag">Bedrock</li><li class="tag">Terraform</li><li class="tag">Python</li>
+            <li class="tag">Step Functions</li><li class="tag">Bedrock</li>
+            <li class="tag">Lambda</li><li class="tag">Terraform</li><li class="tag">Python 3.11</li>
           </ul>
         </header>
         <p class="project-card__description">
-          Event-driven serverless pipeline that auto-detects infrastructure incidents and generates AI-powered
-          root-cause analysis using Amazon Bedrock. Orchestrated by Step Functions with Lambda, DynamoDB, and
-          CloudWatch &mdash; zero human intervention from alert to remediation suggestion.
+          Event-driven AWS serverless pipeline that automatically detects infrastructure issues via CloudWatch Alarms,
+          runs three parallel data collectors (metrics, logs, deploy context), and feeds the results to Amazon Bedrock
+          (Claude) to generate root-cause hypotheses with confidence levels &mdash; advisory-only, no auto-remediation.
         </p>
+        <ul class="project-card__highlights">
+          <li>Parallel fan-out via Step Functions: Metrics Collector, Logs Collector &amp; Deploy Context Collector run simultaneously to minimise latency</li>
+          <li>AI analysis with Bedrock (Claude): root-cause hypotheses, supporting evidence, and actionable remediation recommendations</li>
+          <li>Multi-channel notifications: Slack webhooks + SNS email with rich formatting</li>
+          <li>90-day DynamoDB incident store with TTL, queryable by resource ARN, severity, or time range</li>
+          <li>Full observability: structured JSON logging, X-Ray distributed tracing, custom CloudWatch metrics</li>
+        </ul>
         <footer class="project-card__links">
           <a href="https://github.com/iEric0228/AI-SRE-INCIDENT-ANALYSIS-SYSTEM-AWS" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
             <i class="fab fa-github" aria-hidden="true"></i> View Code
@@ -188,6 +169,68 @@
         </footer>
       </article>
 
+      <!-- MCP DevOps Mentor -->
+      <article class="project-card">
+        <header class="project-card__header">
+          <h3 class="project-card__title">
+            <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
+            MCP DevOps Mentor
+          </h3>
+          <ul class="project-card__tags" aria-label="Technologies used">
+            <li class="tag">Docker</li><li class="tag">Python</li>
+            <li class="tag">MCP</li><li class="tag">GitHub API</li><li class="tag">SQLite</li>
+          </ul>
+        </header>
+        <p class="project-card__description">
+          Dockerized MCP (Model Context Protocol) server that acts as a senior DevOps &amp; Cloud mentor inside your IDE.
+          Parses live GitHub repos, CI/CD pipelines, and Terraform files to give structured, production-grade feedback
+          &mdash; teaching how to think like a DevOps engineer, not just what to do.
+        </p>
+        <ul class="project-card__highlights">
+          <li>11 MCP tools: repo analysis, CI/CD review, Terraform audit, AWS cost advisor, skill tracker, learning path engine</li>
+          <li>4 review modes &mdash; Mentor, Review, Debug, Interview &mdash; each changes tone and depth of feedback</li>
+          <li>CI/CD engine checks: OIDC vs long-lived creds, action pinning, missing permissions blocks, job timeouts, concurrency groups</li>
+          <li>Terraform engine (HCL2 parsing): flags hardcoded secrets, missing remote backend, IAM wildcards, S3 without encryption</li>
+          <li>Skill tracker persists progress in SQLite and generates a personalised learning roadmap</li>
+        </ul>
+        <footer class="project-card__links">
+          <a href="https://github.com/iEric0228/MCP-DevOps-Mentor" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-github" aria-hidden="true"></i> View Code
+          </a>
+        </footer>
+      </article>
+
+      <!-- Aura -->
+      <article class="project-card">
+        <header class="project-card__header">
+          <h3 class="project-card__title">
+            <i class="fas fa-microchip" aria-hidden="true"></i>
+            Aura &mdash; AI-Driven EKS GPU Autoscaler
+          </h3>
+          <ul class="project-card__tags" aria-label="Technologies used">
+            <li class="tag">EKS</li><li class="tag">Karpenter</li>
+            <li class="tag">Terraform</li><li class="tag">Kubernetes</li><li class="tag">GitHub Actions</li>
+          </ul>
+        </header>
+        <p class="project-card__description">
+          Modular Terraform + GitHub Actions system for ephemeral AWS EKS clusters that spin up on demand,
+          auto-scale GPU nodes with Karpenter, run batch AI workloads (Kubernetes Jobs), collect results,
+          then self-destruct &mdash; eliminating idle cluster costs entirely.
+        </p>
+        <ul class="project-card__highlights">
+          <li>Full lifecycle orchestration: Deploy &rarr; Run &rarr; Collect &rarr; Destroy via a single CI/CD pipeline</li>
+          <li>Karpenter provisioner with CPU &amp; GPU NodePool support for LLM inference workloads</li>
+          <li>Modular IaC: VPC, EKS, IAM, IAM_EKS, and OIDC provider as independent Terraform modules</li>
+          <li>OIDC identity federation &mdash; GitHub Actions as trusted identity provider, zero static AWS keys</li>
+        </ul>
+        <footer class="project-card__links">
+          <a href="https://github.com/iEric0228/Aura_AI-driven-Under-utilized-Resource-Autoscaler" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-github" aria-hidden="true"></i> View Code
+          </a>
+        </footer>
+      </article>
+
+      <!-- FinOps Zombie Hunter -->
       <article class="project-card">
         <header class="project-card__header">
           <h3 class="project-card__title">
@@ -195,18 +238,20 @@
             FinOps Zombie Hunter
           </h3>
           <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">AWS</li><li class="tag">Terraform</li>
-            <li class="tag">Python</li><li class="tag">GitHub Actions</li><li class="tag">FinOps</li>
+            <li class="tag">Lambda</li><li class="tag">EventBridge</li>
+            <li class="tag">Terraform</li><li class="tag">Python 3.12</li><li class="tag">GitHub Actions</li>
           </ul>
         </header>
         <p class="project-card__description">
-          Automated AWS cost-optimization engine that identifies and removes unused "zombie" resources
-          (EBS volumes, NAT Gateways, RDS instances, Elastic IPs) across all regions on a weekly EventBridge schedule.
+          Automated AWS cost-optimization engine that hunts orphaned "zombie" resources
+          (EBS volumes, NAT Gateways, RDS instances, Elastic IPs) across every enabled region,
+          triggered by EventBridge on a weekly Sunday cron schedule.
         </p>
         <ul class="project-card__highlights">
-          <li>Scans all regions via CloudWatch metrics for truly idle resources</li>
-          <li>Keyless OIDC auth &mdash; no static AWS credentials stored in CI/CD</li>
-          <li>Integrated tfsec + flake8 for security and code quality gates</li>
+          <li>CloudWatch metrics-based detection &mdash; flags resources by actual usage patterns, not just status</li>
+          <li>Cross-region: dynamically fetches all enabled AWS regions and audits each independently</li>
+          <li>Shift-left security: tfsec + flake8 in CI pipeline before any deployment</li>
+          <li>Modular IaC using Terraform <code>moved</code> blocks for zero-destroy refactoring</li>
           <li>Sample output: <code>{"estimated_monthly_savings": "$347.50"}</code></li>
         </ul>
         <footer class="project-card__links">
@@ -216,6 +261,7 @@
         </footer>
       </article>
 
+      <!-- 3-Tier App -->
       <article class="project-card">
         <header class="project-card__header">
           <h3 class="project-card__title">
@@ -223,23 +269,53 @@
             Enterprise 3-Tier Containerized App on AWS
           </h3>
           <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">AWS</li><li class="tag">Terraform</li><li class="tag">Docker</li>
-            <li class="tag">React</li><li class="tag">Node.js</li><li class="tag">PostgreSQL</li>
+            <li class="tag">ECS Fargate</li><li class="tag">RDS PostgreSQL</li>
+            <li class="tag">React</li><li class="tag">Node.js</li><li class="tag">Terraform</li><li class="tag">Docker</li>
           </ul>
         </header>
         <p class="project-card__description">
-          Production-ready containerized web application on ECS Fargate + RDS PostgreSQL + ALB.
-          Enterprise security (VPC isolation, IAM, Secrets Manager, WAF), full observability
-          (Prometheus, CloudWatch), and 100% Terraform-managed multi-environment infrastructure.
+          Production-ready containerized web app: React (TypeScript + Nginx) frontend, Node.js (Express) backend,
+          and PostgreSQL 15 on RDS Multi-AZ &mdash; deployed on ECS Fargate behind an ALB with full VPC isolation,
+          enterprise security, and complete observability.
         </p>
         <ul class="project-card__highlights">
-          <li>Multi-tier: ALB &rarr; ECS Fargate (frontend + backend) &rarr; RDS PostgreSQL</li>
-          <li>Cost-optimized: Fargate Spot, RDS auto-pause, log retention policies</li>
-          <li>Performance: &lt;2s page load, &lt;500ms API response, 99.9% uptime target</li>
+          <li>3-tier: ALB &rarr; ECS Fargate frontend &rarr; ECS Fargate backend &rarr; RDS PostgreSQL (private subnet)</li>
+          <li>Security: Secrets Manager, WAF, SSL/TLS termination at ALB, security groups per tier</li>
+          <li>Observability: Prometheus metrics, CloudWatch logs, health checks, and alerting</li>
+          <li>Cost-optimised: Fargate Spot, RDS auto-pause, log retention policies, right-sizing</li>
+          <li>Performance targets: &lt;2s page load, &lt;500ms API response, 99.9% uptime</li>
         </ul>
         <footer class="project-card__links">
           <a href="https://github.com/iEric0228/Containerized-3-Tier-Application" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
             <i class="fab fa-github" aria-hidden="true"></i> View Code
+          </a>
+        </footer>
+      </article>
+
+      <!-- Cloud Resume -->
+      <article class="project-card">
+        <header class="project-card__header">
+          <h3 class="project-card__title">
+            <i class="fas fa-cloud" aria-hidden="true"></i>
+            Cloud Resume Challenge
+            <span class="project-card__badge">This Website</span>
+          </h3>
+          <ul class="project-card__tags" aria-label="Technologies used">
+            <li class="tag">S3</li><li class="tag">CloudFront</li>
+            <li class="tag">Lambda</li><li class="tag">DynamoDB</li><li class="tag">Terraform</li>
+          </ul>
+        </header>
+        <p class="project-card__description">
+          Serverless resume website with a live visitor counter. Static assets served from S3 via CloudFront OAC,
+          visitor count stored in DynamoDB and incremented atomically by a Python Lambda behind API Gateway &mdash;
+          full IaC with modular Terraform, OIDC-based CI/CD, and custom domain at <strong>www.ericchiu.page</strong>.
+        </p>
+        <footer class="project-card__links">
+          <a href="https://github.com/iEric0228/Cloud-resume" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-github" aria-hidden="true"></i> View Code
+          </a>
+          <a href="https://www.ericchiu.page" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Live Site
           </a>
         </footer>
       </article>
