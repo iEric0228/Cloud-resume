@@ -20,6 +20,12 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  # Remote state — values supplied via:
+  #   terraform init -backend-config=backend.hcl          (local)
+  #   -backend-config flags in CI/CD pipeline             (GitHub Actions)
+  # Run infrastructure/bootstrap first to create the bucket + table.
+  backend "s3" {}
 }
 
 provider "aws" {
