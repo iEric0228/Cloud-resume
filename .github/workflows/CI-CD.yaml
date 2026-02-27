@@ -43,7 +43,7 @@ jobs:
     - name: 🔍 Validate Everything
       run: |
         # Terraform validation
-        cd infra/environments/dev
+        cd infrastructure/environments/dev
         terraform init
         terraform validate
         terraform fmt -check
@@ -51,7 +51,7 @@ jobs:
         
         # Website validation
         cd ../../../
-        required_files=("website/index.html" "website/css/styles.css" "website/js/visitor-counter.js")
+        required_files=("frontend/index.html" "frontend/styles/styles.css" "frontend/utils/visitor-counter.js")
         for file in "${required_files[@]}"; do
           [[ -f "$file" ]] && echo "✅ $file" || { echo "❌ Missing $file"; exit 1; }
         done
@@ -83,7 +83,7 @@ jobs:
 
     - name: 🏗️ Deploy Infrastructure
       if: github.event.inputs.action != 'destroy-only'
-      working-directory: ./infra/environments/dev
+      working-directory: ./infrastructure/environments/dev
       run: |
         echo "🚀 Deploying cloud resume infrastructure..."
         terraform init
@@ -187,7 +187,7 @@ jobs:
         echo "📤 Deploying website files..."
         
         # Get outputs from Terraform with proper error handling
-        cd infra/environments/dev
+        cd infrastructure/environments/dev
         
         # Extract outputs with proper quoting
         S3_BUCKET=$(terraform output -raw s3_bucket_name 2>/dev/null || echo "")
@@ -218,13 +218,13 @@ jobs:
         fi
         
         echo "✅ Found website directory"
-        ls -la website/
+        ls -la frontend/
         
         # Update visitor counter with API URL
         echo "🔄 Updating visitor counter with API URL..."
         echo "🔍 API_URL variable contains: '$API_URL'"
         
-        if [[ -f "website/js/visitor-counter.js" ]]; then
+        if [[ -f "frontend/utils/visitor-counter.js" ]]; then
           # Verify API_URL is not empty
           if [[ -z "$API_URL" ]]; then
             echo "❌ ERROR: API_URL is empty!"
@@ -233,26 +233,26 @@ jobs:
           
           # Show original content
           echo "📄 Original visitor-counter.js content (first 10 lines):"
-          head -10 website/js/visitor-counter.js
+          head -10 frontend/utils/visitor-counter.js
           
           # Create backup
-          cp website/js/visitor-counter.js website/js/visitor-counter.js.bak
-          echo "✅ Created backup: website/js/visitor-counter.js.bak"
+          cp frontend/utils/visitor-counter.js frontend/utils/visitor-counter.js.bak
+          echo "✅ Created backup: frontend/utils/visitor-counter.js.bak"
           
           # ✅ ENHANCED: More precise replacement - only replace the assignment line
           echo "🔄 Performing URL replacement..."
-          sed "s|this\.apiUrl = 'REPLACE_WITH_API_URL'|this.apiUrl = '${API_URL}'|g" website/js/visitor-counter.js.bak > website/js/visitor-counter.js
+          sed "s|REPLACE_WITH_API_URL|${API_URL}|g" frontend/utils/visitor-counter.js.bak > frontend/utils/visitor-counter.js
           
           echo "✅ sed command executed successfully"
           
           # Verify replacement worked
-          if grep -q "REPLACE_WITH_API_URL" website/js/visitor-counter.js; then
+          if grep -q "REPLACE_WITH_API_URL" frontend/utils/visitor-counter.js; then
             echo "⚠️ WARNING: Some REPLACE_WITH_API_URL placeholders still exist"
             echo "🔍 Lines containing REPLACE_WITH_API_URL:"
-            grep -n "REPLACE_WITH_API_URL" website/js/visitor-counter.js || true
+            grep -n "REPLACE_WITH_API_URL" frontend/utils/visitor-counter.js || true
             
             # Check if assignment was replaced correctly
-            if grep -q "this\.apiUrl = '${API_URL}'" website/js/visitor-counter.js; then
+            if grep -q "'${API_URL}'" frontend/utils/visitor-counter.js; then
               echo "✅ Assignment replacement successful (some placeholders remain for logic)"
             else
               echo "❌ Assignment replacement failed!"
@@ -264,22 +264,22 @@ jobs:
           
           # Show modified content
           echo "📄 Modified visitor-counter.js content (first 10 lines):"
-          head -10 website/js/visitor-counter.js
+          head -10 frontend/utils/visitor-counter.js
           
         else
           echo "❌ ERROR: visitor-counter.js not found"
           echo "🔍 Current directory contents:"
           ls -la
           echo "🔍 Website directory contents:"
-          ls -la website/ || echo "website/ directory not found"
+          ls -la frontend/ || echo "frontend/ directory not found"
           exit 1
         fi
         
         # Verify all required files exist
         required_files=(
-          "website/index.html"
-          "website/css/styles.css" 
-          "website/js/visitor-counter.js"
+          "frontend/index.html"
+          "frontend/styles/styles.css" 
+          "frontend/utils/visitor-counter.js"
         )
         
         for file in "${required_files[@]}"; do
@@ -295,27 +295,27 @@ jobs:
         echo "🚀 Uploading website files to S3..."
         
         # Sync all files first
-        aws s3 sync website/ "s3://${S3_BUCKET}/" --delete
+        aws s3 sync frontend/ "s3://${S3_BUCKET}/" --delete
         
         # Set specific content types and cache headers
         echo "🔧 Setting content types and cache headers..."
         
-        aws s3 cp website/index.html "s3://${S3_BUCKET}/index.html" \
+        aws s3 cp frontend/index.html "s3://${S3_BUCKET}/index.html" \
           --content-type "text/html" \
           --cache-control "no-cache, no-store, must-revalidate"
           
-        aws s3 cp website/css/styles.css "s3://${S3_BUCKET}/css/styles.css" \
+        aws s3 cp frontend/styles/styles.css "s3://${S3_BUCKET}/css/styles.css" \
           --content-type "text/css" \
           --cache-control "max-age=31536000"
           
         # ✅ FIX: Upload the MODIFIED visitor-counter.js (with real API URL)
-        aws s3 cp website/js/visitor-counter.js "s3://${S3_BUCKET}/js/visitor-counter.js" \
+        aws s3 cp frontend/utils/visitor-counter.js "s3://${S3_BUCKET}/js/visitor-counter.js" \
           --content-type "application/javascript" \
           --cache-control "max-age=300"
         
         # Upload animation.js if it exists
-        if [[ -f "website/js/animation.js" ]]; then
-          aws s3 cp website/js/animation.js "s3://${S3_BUCKET}/js/animation.js" \
+        if [[ -f "frontend/utils/animation.js" ]]; then
+          aws s3 cp frontend/utils/animation.js "s3://${S3_BUCKET}/js/animation.js" \
             --content-type "application/javascript" \
             --cache-control "max-age=31536000"
           echo "✅ Uploaded animation.js"
@@ -325,7 +325,7 @@ jobs:
         
         # ✅ ADD: Invalidate CloudFront cache for JavaScript files
         echo "🔄 Invalidating CloudFront cache..."
-        cd infra/environments/dev
+        cd infrastructure/environments/dev
         CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo "")
         cd ../../../
         
@@ -342,8 +342,8 @@ jobs:
         fi
         
         # ✅ FIX: NOW restore original visitor-counter.js (AFTER uploading AND invalidating)
-        if [[ -f "website/js/visitor-counter.js.bak" ]]; then
-          mv website/js/visitor-counter.js.bak website/js/visitor-counter.js
+        if [[ -f "frontend/utils/visitor-counter.js.bak" ]]; then
+          mv frontend/utils/visitor-counter.js.bak frontend/utils/visitor-counter.js
           echo "✅ Restored original visitor-counter.js for git cleanliness"
         fi
         
@@ -367,7 +367,7 @@ jobs:
         echo "🔍 Debugging Lambda function..."
         
         # Get Lambda function name and details
-        cd infra/environments/dev
+        cd infrastructure/environments/dev
         LAMBDA_NAME=$(terraform output -raw lambda_function_name 2>/dev/null || echo "")
         cd ../../../
         
@@ -461,7 +461,7 @@ jobs:
 
     - name: 🗑️ Cleanup
       if: always() && (github.event.inputs.action == 'deploy-test-destroy' || github.event.inputs.action == 'destroy-only')
-      working-directory: ./infra/environments/dev
+      working-directory: ./infrastructure/environments/dev
       run: |
         echo "🗑️ Cleaning up resources..."
         

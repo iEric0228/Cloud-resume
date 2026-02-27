@@ -90,7 +90,7 @@ resource "aws_lambda_function" "visitor_counter" {
   role            = aws_iam_role.lambda_role.arn
   handler         = "handler.lambda_handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  runtime         = "python3.9"
+  runtime         = "python3.12"
   timeout         = 15
 
   environment {
