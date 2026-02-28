@@ -7,280 +7,340 @@
 [![Terraform](https://img.shields.io/badge/Terraform-623CE4?style=flat-square&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Infrastructure](https://img.shields.io/badge/Infrastructure-as%20Code-blue?style=flat-square)]()
 
-**Live Demo:** [Coming Soon - Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
+**Live Site:** [https://ericchiu.page](https://ericchiu.page)
 
 ---
 
 ## Architecture Overview
 
-This project implements a **serverless, highly-available resume website** with real-time visitor tracking, demonstrating modern cloud architecture patterns and DevOps best practices.
+This project implements a **serverless, highly-available resume website** with real-time visitor tracking, fully provisioned through Infrastructure as Code and deployed via a CI/CD pipeline.
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Visitors      │───▶│   CloudFront     │───▶│   S3 Bucket     │
-│   (Global)      │    │   (Global CDN)   │    │ (Static Website)│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐    ┌─────────────────┐
-                       │   API Gateway    │───▶│ Lambda Function │
-                       │  (RESTful API)   │    │ (Python Runtime)│
-                       └──────────────────┘    └─────────────────┘
-                                                        │
-                                                        ▼
-                                               ┌─────────────────┐
-                                               │   DynamoDB      │
-                                               │ (Visitor Count) │
-                                               └─────────────────┘
+                          ┌──────────────────┐
+                          │   Route 53       │
+          ericchiu.page──▶│  (DNS + Alias)   │
+                          └────────┬─────────┘
+                                   │
+                                   ▼
+                          ┌──────────────────┐      ┌─────────────────┐
+┌────────────────┐        │   CloudFront     │─────▶│   S3 Bucket     │
+│   Visitors     │──────▶ │   (Global CDN)   │      │  (Static Site)  │
+│   (Global)     │        │  + ACM (HTTPS)   │      │  Private / OAC  │
+└────────────────┘        └──────────────────┘      └─────────────────┘
+                                   │
+                                   ▼
+                          ┌──────────────────┐      ┌─────────────────┐
+                          │   API Gateway    │─────▶│ Lambda Function │
+                          │   (HTTP API)     │      │ (Python 3.12)   │
+                          └──────────────────┘      └────────┬────────┘
+                                                             │
+                                                             ▼
+                                                    ┌─────────────────┐
+                                                    │   DynamoDB      │
+                                                    │ (Visitor Count) │
+                                                    └─────────────────┘
+
+           Terraform Remote State
+           ┌──────────────────────┐
+           │ S3 Bucket + DynamoDB │
+           │    (State Locking)   │
+           └──────────────────────┘
 ```
 
-### **Key Features**
+### Key Features
 
-- **erverless Architecture** - Zero server management, infinite scalability
+- **Serverless Architecture** - Zero server management, automatic scaling
+- **Custom Domain** - HTTPS via ACM certificate + Route 53 DNS
 - **Global CDN** - Sub-second load times worldwide via CloudFront
-- **Real-time Analytics** - Live visitor counter with DynamoDB persistence
-- **Security First** - HTTPS everywhere, IAM roles, CORS policies
-- **Cost Optimized** - Pay-per-use pricing, ~$1-2/month operational cost
-- **CI/CD Pipeline** - Automated testing, deployment, and cleanup
-- **Infrastructure as Code** - 100% Terraform, version controlled
-- **Responsive Design** - Mobile-first, accessible UI/UX
+- **Real-time Visitor Counter** - Live visitor tracking with DynamoDB
+- **Security First** - HTTPS everywhere, OAC for S3, IAM least privilege, CORS policies
+- **CI/CD Pipeline** - Automated deploy, test, and teardown via GitHub Actions
+- **Infrastructure as Code** - 100% Terraform with modular design
+- **Remote State** - S3 backend with DynamoDB state locking
+
+---
+
+## Project Structure
+
+```
+Cloud-resume/
+├── .github/
+│   └── workflows/
+│       └── CI-CD.yaml              # GitHub Actions pipeline
+├── backend/
+│   └── lambda/
+│       └── handler.py              # Visitor counter Lambda (Python 3.12)
+├── frontend/
+│   ├── index.html                  # Resume page
+│   ├── styles/
+│   │   └── styles.css              # Stylesheet
+│   └── utils/
+│       ├── animation.js            # UI animations
+│       └── visitor-counter.js      # API client for visitor counter
+├── infrastructure/
+│   ├── environments/
+│   │   └── dev/
+│   │       ├── main.tf             # Root module — wires all modules together
+│   │       ├── variables.tf        # Environment variables
+│   │       ├── outputs.tf          # Terraform outputs
+│   │       └── backend.hcl         # Remote state config (local use)
+│   └── modules/
+│       ├── acm/                    # ACM certificate (DNS-validated)
+│       ├── api-gateway/            # HTTP API + Lambda integration
+│       ├── cloudfront/             # CDN + OAC + S3 bucket policy
+│       ├── dynamodb/               # Visitor counter table
+│       ├── lambda/                 # Function + IAM role/policies
+│       ├── route53/                # DNS alias records + cert validation
+│       └── s3/                     # Private bucket (encryption, CORS)
+├── scripts/
+│   ├── deploy-web.sh               # Manual website deploy helper
+│   ├── get-urls.sh                 # Print Terraform outputs
+│   └── validate.py                 # Validation utility
+├── docs/                           # Architecture & design documentation
+├── .gitignore
+├── eslint.config.mjs
+└── package.json
+```
 
 ---
 
 ## Technology Stack
 
-### **Frontend**
-- **HTML5/CSS3** - Semantic markup, modern styling
-- **Vanilla JavaScript** - No frameworks, optimized performance
-- **Responsive Design** - Mobile-first approach
+### Frontend
+- **HTML5 / CSS3** - Semantic markup, responsive design
+- **Vanilla JavaScript** - Animations and visitor counter API client
 
-### **Backend & Infrastructure**
-- **AWS Lambda** - Serverless compute (Python 3.9)
-- **API Gateway** - RESTful API with CORS
-- **DynamoDB** - NoSQL database, on-demand billing
-- **S3** - Static website hosting
-- **CloudFront** - Global content delivery network
-- **Route 53** - DNS management (optional)
+### Backend
+- **AWS Lambda** - Serverless compute (Python 3.12)
+- **API Gateway** - HTTP API with CORS
+- **DynamoDB** - NoSQL database, on-demand (pay-per-request) billing
 
-### **DevOps & Automation**
-- **Terraform** - Infrastructure as Code
-- **GitHub Actions** - CI/CD pipeline
-- **AWS OIDC** - Keyless authentication
-- **Automated Testing** - Integration and performance tests
+### Hosting & DNS
+- **S3** - Private static file storage (no public access)
+- **CloudFront** - Global CDN with Origin Access Control (OAC)
+- **ACM** - SSL/TLS certificate (DNS-validated, auto-renewing)
+- **Route 53** - DNS hosted zone with alias records
+
+### DevOps & Automation
+- **Terraform** (>= 1.6) - Infrastructure as Code with modular design
+- **GitHub Actions** - CI/CD pipeline with OIDC authentication
+- **AWS OIDC** - Keyless, short-lived credentials (no static access keys)
+- **S3 + DynamoDB** - Remote state backend with locking
 
 ---
 
 ## Quick Start
 
-### **Prerequisites**
+### Prerequisites
 - AWS Account with appropriate permissions
-- GitHub account
-- Terraform >= 1.5.0
-- AWS CLI configured
+- GitHub account (for CI/CD)
+- [Terraform](https://terraform.io/) >= 1.6
+- [AWS CLI](https://aws.amazon.com/cli/) configured
 
-### **1. Clone & Setup**
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/iEric0228/Cloud-resume.git
 cd Cloud-resume
-
-# Configure your AWS credentials
-aws configure
 ```
 
-### **2. Deploy Infrastructure**
+### 2. Bootstrap Remote State (one-time)
+
+Before deploying infrastructure, create the S3 bucket and DynamoDB table that Terraform uses to store its state:
+
 ```bash
-cd infra/environments/dev
-terraform init
+# Create the state bucket and lock table (run once)
+aws s3api create-bucket --bucket <your-state-bucket> --region us-east-1
+aws dynamodb create-table \
+  --table-name terraform-state-lock \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST
+```
+
+### 3. Deploy Infrastructure
+
+```bash
+cd infrastructure/environments/dev
+
+# Initialise with remote backend
+terraform init \
+  -backend-config="bucket=<your-state-bucket>" \
+  -backend-config="key=cloud-resume/dev/terraform.tfstate" \
+  -backend-config="region=us-east-1" \
+  -backend-config="encrypt=true" \
+  -backend-config="dynamodb_table=terraform-state-lock"
+
+terraform plan
 terraform apply
 ```
 
-### **3. Upload Website**
+### 4. Upload Website Files
+
 ```bash
-# Get bucket name from Terraform output
+# Get the bucket name from Terraform output
 BUCKET=$(terraform output -raw s3_bucket_name)
 
-# Upload website files
-aws s3 sync ../../../website/ s3://$BUCKET/
+# Sync frontend files to S3
+aws s3 sync ../../../frontend/ s3://$BUCKET/
+
+# Invalidate CloudFront cache
+DIST_ID=$(terraform output -raw cloudfront_distribution_id)
+aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
 ```
 
-### **4. Access Your Resume**
+### 5. Access Your Resume
+
 ```bash
-# Get your website URL
 terraform output website_url
 ```
 
 ---
 
+## Custom Domain Setup
+
+The project supports an optional custom domain via the `enable_custom_domain` variable.
+
+| Variable | Default | Description |
+|---|---|---|
+| `enable_custom_domain` | `true` | Toggle custom domain (ACM + Route 53) |
+| `domain_name` | `ericchiu.page` | Root domain for the website |
+
+When `enable_custom_domain = true`, Terraform will:
+1. Look up the existing Route 53 hosted zone for the domain
+2. Create an ACM certificate and validate it via DNS
+3. Create alias records (`domain.com` + `www.domain.com`) pointing to CloudFront
+
+**Prerequisites for custom domain:**
+1. Register your domain (any registrar)
+2. Create a Route 53 hosted zone for the domain in AWS
+3. Update your registrar's nameservers to the values from Route 53
+4. Wait for DNS propagation (check with `dig NS yourdomain.com`)
+5. Set `enable_custom_domain = true` and run `terraform apply`
+
+When `enable_custom_domain = false`, the site is served from the default CloudFront domain (`d1234.cloudfront.net`).
+
+---
+
 ## CI/CD Pipeline
 
-### **Automated Workflows**
+### Workflow Overview
 
-The project includes a sophisticated CI/CD pipeline that demonstrates enterprise DevOps practices:
+The GitHub Actions pipeline (`.github/workflows/CI-CD.yaml`) provides automated infrastructure management with three deploy modes:
 
-#### **Pull Request Validation**
-- Terraform syntax and formatting validation
-- Website file structure verification  
-- Infrastructure plan generation
-- Automatic branch cleanup after merge
+| Mode | Description | Cost |
+|---|---|---|
+| `deploy-test-destroy` | Deploy, run tests, tear everything down | $0.00 |
+| `deploy-test-keep` | Deploy, run tests, leave running | ~$0.50-1.00/month |
+| `destroy-only` | Tear down existing resources | — |
 
-#### **Deployment Pipeline**
-- Infrastructure provisioning via Terraform
-- Website deployment to S3/CloudFront
-- Integration testing (website + API)
-- Cost-optimized cleanup options
+### Pipeline Steps
 
-#### **Cost Management**
-```yaml
-Deploy Modes:
-  • deploy-test-destroy: $0.00 (auto-cleanup after testing)
-  • deploy-test-keep: ~$1-2/month (portfolio mode)
-  • destroy-only: Cleanup existing resources
-```
+1. **Checkout** code
+2. **Configure AWS** credentials via OIDC (no static keys)
+3. **Terraform init** with remote S3 backend
+4. **Import** orphaned resources (IAM role, DynamoDB table) if needed
+5. **Terraform plan + apply** infrastructure
+6. **Deploy** frontend files to S3
+7. **Invalidate** CloudFront cache
+8. **Integration tests** - verify website and API responses
+9. **Cleanup** - destroy resources (if `deploy-test-destroy` mode)
 
-### **Usage Examples**
+### Pull Request Validation
+- `terraform validate` and `terraform fmt -check`
+- Frontend file structure verification (`index.html`, `styles.css`, `visitor-counter.js`)
+
+### Usage
 
 ```bash
-# Development testing (zero cost)
-gh workflow run "Cloud Resume CI/CD" \
+# Development testing (zero cost - auto-destroys after tests)
+gh workflow run "☁️ Cloud Resume CI/CD" \
   --field action=deploy-test-destroy \
-  --field keep_alive_hours=2
+  --field keep_alive_minutes=5
 
 # Portfolio deployment (keep running)
-gh workflow run "Cloud Resume CI/CD" \
+gh workflow run "☁️ Cloud Resume CI/CD" \
   --field action=deploy-test-keep \
-  --field keep_alive_hours=720  # 30 days
+  --field keep_alive_minutes=5
+
+# Tear down everything
+gh workflow run "☁️ Cloud Resume CI/CD" \
+  --field action=destroy-only
+```
+
+### Required GitHub Secrets / OIDC
+
+The pipeline authenticates to AWS using **OpenID Connect** — no static AWS keys are stored in GitHub. You need:
+
+1. An IAM OIDC identity provider for `token.actions.githubusercontent.com`
+2. An IAM role with a trust policy that allows your GitHub repo to assume it
+3. The role ARN configured in the workflow file
+
+---
+
+## Terraform Module Reference
+
+| Module | Purpose | Key Resources |
+|---|---|---|
+| **s3** | Private static file bucket | S3 bucket, public access block, SSE, CORS |
+| **cloudfront** | CDN with OAC | Distribution, OAC, S3 bucket policy |
+| **acm** | SSL/TLS certificate | ACM certificate (DNS validation) |
+| **route53** | DNS records | Alias records (A + AAAA), cert validation records |
+| **lambda** | Visitor counter function | Lambda function, IAM role + policies |
+| **api-gateway** | HTTP API | API Gateway, Lambda integration, CORS |
+| **dynamodb** | Visitor count storage | DynamoDB table (on-demand billing) |
+
+### Dependency Chain
+
+```
+data.route53_zone  --> looks up existing hosted zone
+module.s3          --> no dependencies
+module.dynamodb    --> no dependencies
+module.lambda      --> dynamodb
+module.api_gateway --> lambda
+module.acm         --> (only when enable_custom_domain = true)
+module.cloudfront  --> s3, route53 (when custom domain enabled)
+module.route53     --> zone, acm, cloudfront (when custom domain enabled)
 ```
 
 ---
 
-## Performance & Monitoring
+## Cost Estimate
 
-### **Performance Metrics**
-- **Website Load Time:** < 2 seconds globally
-- **API Response Time:** < 500ms average
-- **Availability:** 99.9%+ (AWS SLA)
-- **SSL Grade:** A+ (SSL Labs)
+For a low-traffic personal portfolio site:
 
-### **Monitoring Stack**
-- **CloudWatch** - Metrics and logging
-- **Lambda Insights** - Performance monitoring
-- **X-Ray** - Distributed tracing (optional)
-- **Cost Explorer** - Expense tracking
+| Service | Usage | Estimated Cost |
+|---|---|---|
+| Route 53 | 1 hosted zone | $0.50/month |
+| S3 | < 1 GB storage | < $0.01/month |
+| CloudFront | < 1 GB transfer | Free tier / < $0.01/month |
+| Lambda | < 10k invocations | Free tier |
+| API Gateway | < 10k requests | Free tier |
+| DynamoDB | On-demand, minimal | Free tier |
+| **Total** | | **~$0.50 - $1.00/month** |
 
----
+Route 53 is the only guaranteed charge. Most other services fall within the AWS Free Tier for typical portfolio traffic.
 
-## Cost Analysis
-
-### **Monthly Operational Costs**
-```
-Service              | Usage           | Cost/Month
----------------------|-----------------|------------
-S3 Standard         | 1GB storage     | $0.02
-CloudFront          | 1GB transfer    | $0.09
-Lambda              | 1M invocations  | $0.20
-API Gateway         | 1M requests     | $1.00
-DynamoDB            | On-demand       | $0.25
-Route 53 (optional) | 1 hosted zone   | $0.50
----------------------|-----------------|------------
-Total               |                 | ~$2.06/month
-```
-
-*Actual costs may be lower due to AWS Free Tier eligibility.*
+The `deploy-test-destroy` CI/CD mode costs nothing — infrastructure is torn down after testing.
 
 ---
 
-## Security Features
+## Security
 
-### **Implementation**
-- **HTTPS Everywhere** - SSL/TLS encryption
-- **IAM Roles** - Principle of least privilege
-- **CORS Policies** - Controlled API access
-- **Security Headers** - XSS, CSRF protection
-- **Input Validation** - API parameter sanitization
-- **VPC Isolation** - Network security (optional)
-
-### **Compliance**
-- **OWASP Top 10** - Security best practices
-- **AWS Well-Architected** - Framework compliance
-- **GDPR Considerations** - Privacy by design
-
----
-
-## Testing Strategy
-
-### **Automated Tests**
-- **Infrastructure Validation** - Terraform fmt, validate, plan
-- **Website Accessibility** - HTTP response codes, load times
-- **API Functionality** - Visitor counter increment/decrement
-- **Performance Testing** - Load time thresholds
-- **Security Scanning** - Basic vulnerability checks
-
-### **Manual Testing Checklist**
-- [ ] Website loads on desktop/mobile
-- [ ] Visitor counter increments correctly
-- [ ] All links and navigation work
-- [ ] SSL certificate valid
-- [ ] Page load time < 3 seconds
-
----
-
-## Future Enhancements
-
-### **Phase 2 Features**
-- [ ] **Custom Domain** - Professional branding
-- [ ] **Contact Form** - SES integration
-- [ ] **Blog Section** - Technical writing showcase
-- [ ] **Analytics Dashboard** - Visitor insights
-- [ ] **A/B Testing** - Resume optimization
-
-### **Advanced Integrations**
-- [ ] **LinkedIn API** - Dynamic experience sync
-- [ ] **GitHub API** - Live repository stats
-- [ ] **Monitoring Dashboard** - CloudWatch metrics
-- [ ] **Mobile App** - React Native version
-
-## Project Journey
-
-### **Learning Outcomes**
-This project demonstrates proficiency in:
-
-- **Cloud Architecture** - AWS serverless services
-- **Infrastructure as Code** - Terraform best practices  
-- **DevOps** - CI/CD pipelines, automation
-- **Security** - AWS IAM, HTTPS, secure coding
-- **Cost Optimization** - AWS billing, resource management
-- **Monitoring** - CloudWatch, performance tuning
-- **Full-Stack Development** - Frontend + Backend + Infrastructure
-
-### **Technical Challenges Solved**
-- Serverless architecture design and implementation
-- Cross-origin resource sharing (CORS) configuration
-- CloudFront distribution with custom origins
-- DynamoDB NoSQL data modeling
-- GitHub Actions OIDC authentication
-- Terraform state management and modules
-- Cost-optimized auto-scaling infrastructure
-
----
-
-## Resources & References
-
-### **AWS Documentation**
-- [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
-- [Serverless Application Lens](https://docs.aws.amazon.com/wellarchitected/latest/serverless-applications-lens/)
-- [AWS Security Best Practices](https://aws.amazon.com/architecture/security-identity-compliance/)
-
-### **Tools & Technologies**
-- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [AWS CLI Reference](https://docs.aws.amazon.com/cli/)
+- **HTTPS everywhere** - CloudFront enforces `redirect-to-https`
+- **Origin Access Control** - S3 bucket is fully private; only CloudFront can read objects
+- **IAM least privilege** - Lambda role has only the DynamoDB permissions it needs
+- **CORS policies** - API Gateway restricts origins to the website domain
+- **No static AWS keys** - CI/CD uses OIDC for short-lived credentials
+- **Encryption at rest** - S3 server-side encryption (AES-256)
+- **Remote state locking** - DynamoDB prevents concurrent Terraform operations
 
 ---
 
 ## Author
 
 **Eric Chiu**
-- Portfolio: [Deploy on Demand](https://github.com/iEric0228/Cloud-resume#-quick-start)
-- LinkedIn: [Eric Chiu](https://www.linkedin.com/in/eric-chiu-a610553a3/)  
+- Website: [ericchiu.page](https://ericchiu.page)
+- LinkedIn: [Eric Chiu](https://www.linkedin.com/in/eric-chiu-a610553a3/)
 - GitHub: [@iEric0228](https://github.com/iEric0228)
 - Email: ericchiu0228@gmail.com
+

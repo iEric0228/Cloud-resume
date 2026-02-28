@@ -30,5 +30,5 @@ output "lambda_function_name" {
 
 output "route53_nameservers" {
   description = "Nameservers for the hosted zone — set these at your domain registrar to activate DNS"
-  value       = aws_route53_zone.main.name_servers
+  value       = data.aws_route53_zone.main.name_servers
 }
