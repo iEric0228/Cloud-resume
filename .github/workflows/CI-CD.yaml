@@ -112,7 +112,7 @@ jobs:
         elif aws iam get-role --role-name cloud-resume-lambda-role-dev 2>/dev/null; then
           echo "📋 IAM role exists in AWS, importing..."
           terraform import module.lambda.aws_iam_role.lambda_role cloud-resume-lambda-role-dev || \
-            echo "⚠️ IAM role import failed — Terraform will handle it during apply"
+            echo "⚠️ IAM role import failed — will be handled during apply"
         else
           echo "👥 IAM role doesn't exist yet, will be created"
         fi
@@ -124,11 +124,11 @@ jobs:
         elif aws dynamodb describe-table --table-name cloud-resume-visitor-count-dev 2>/dev/null; then
           echo "📋 DynamoDB table exists in AWS, importing..."
           terraform import module.dynamodb.aws_dynamodb_table.visitor_count cloud-resume-visitor-count-dev || \
-            echo "⚠️ Table import failed — Terraform will handle it during apply"
+            echo "⚠️ Table import failed — will be handled during apply"
         else
           echo "📋 DynamoDB table doesn't exist yet, will be created"
         fi
-        
+
         # Plan and apply
         echo "📋 Planning deployment..."
         terraform plan -input=false
