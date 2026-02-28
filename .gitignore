@@ -49,7 +49,7 @@ credentials
 
 # Terraform
 .terraform/
-.terraform.lock.hcl
+# NOTE: .terraform.lock.hcl is NOT ignored — commit it for reproducible provider versions
 *.tfstate
 *.tfstate.*
 *.tfvars

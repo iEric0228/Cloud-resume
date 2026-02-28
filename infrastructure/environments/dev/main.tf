@@ -6,7 +6,7 @@
 # When false, the site is served from the CloudFront default domain.
 #
 # Dependency chain:
-#   aws_route53_zone   → always created (provides nameservers)
+#   data.route53_zone  → looks up existing hosted zone
 #   module.s3          → no deps
 #   module.dynamodb    → no deps
 #   module.lambda      → dynamodb
@@ -59,14 +59,10 @@ module "s3" {
   force_destroy = true
 }
 
-# ── Route53 Hosted Zone (always created so nameservers are available) ─────────
-resource "aws_route53_zone" "main" {
-  name = var.domain_name
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-zone"
-    Environment = var.environment
-  }
+# ── Route53 Hosted Zone (looked up — must already exist in AWS) ──────────────
+data "aws_route53_zone" "main" {
+  name         = var.domain_name
+  private_zone = false
 }
 
 # ── ACM Certificate (only when custom domain is enabled) ─────────────────────
@@ -84,7 +80,7 @@ module "acm" {
 module "route53" {
   count                                 = var.enable_custom_domain ? 1 : 0
   source                                = "../../modules/route53"
-  zone_id                               = aws_route53_zone.main.zone_id
+  zone_id                               = data.aws_route53_zone.main.zone_id
   domain_name                           = var.domain_name
   cloudfront_domain_name                = module.cloudfront.distribution_domain_name
   certificate_arn                       = module.acm[0].certificate_arn

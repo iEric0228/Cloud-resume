@@ -103,33 +103,7 @@ jobs:
           -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
           -input=false
         
-        echo "🔍 Checking for existing resources to import..."
-
-        # Import IAM role if it exists in AWS but not in Terraform state
-        echo "👥 Checking IAM role..."
-        if terraform state show module.lambda.aws_iam_role.lambda_role 2>/dev/null; then
-          echo "✅ IAM role already in Terraform state"
-        elif aws iam get-role --role-name cloud-resume-lambda-role-dev 2>/dev/null; then
-          echo "📋 IAM role exists in AWS, importing..."
-          terraform import module.lambda.aws_iam_role.lambda_role cloud-resume-lambda-role-dev || \
-            echo "⚠️ IAM role import failed — Terraform will handle it during apply"
-        else
-          echo "👥 IAM role doesn't exist yet, will be created"
-        fi
-
-        # Import DynamoDB table if it exists in AWS but not in Terraform state
-        echo "📊 Checking DynamoDB table..."
-        if terraform state show module.dynamodb.aws_dynamodb_table.visitor_count 2>/dev/null; then
-          echo "✅ DynamoDB table already in Terraform state"
-        elif aws dynamodb describe-table --table-name cloud-resume-visitor-count-dev 2>/dev/null; then
-          echo "📋 DynamoDB table exists in AWS, importing..."
-          terraform import module.dynamodb.aws_dynamodb_table.visitor_count cloud-resume-visitor-count-dev || \
-            echo "⚠️ Table import failed — Terraform will handle it during apply"
-        else
-          echo "📋 DynamoDB table doesn't exist yet, will be created"
-        fi
-        
-        # Plan and apply
+        # Plan and apply (import blocks in imports.tf handle orphaned resources)
         echo "📋 Planning deployment..."
         terraform plan -input=false
         terraform apply -auto-approve -input=false
