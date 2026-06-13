@@ -15,10 +15,12 @@ FRONTEND_DIR="${FRONTEND_DIR:-frontend}"
 COUNTER_JS="${FRONTEND_DIR}/utils/visitor-counter.js"
 
 echo "Injecting API URL into visitor-counter.js..."
-cp "${COUNTER_JS}" "${COUNTER_JS}.bak"
+# Back up OUTSIDE the synced dir so the backup is never uploaded to S3.
+COUNTER_BACKUP="$(mktemp)"
+cp "${COUNTER_JS}" "${COUNTER_BACKUP}"
 # Restore the original (uninjected) file on exit so the working tree stays clean.
-trap 'mv -f "${COUNTER_JS}.bak" "${COUNTER_JS}" 2>/dev/null || true' EXIT
-sed "s|REPLACE_WITH_API_URL|${API_URL}|g" "${COUNTER_JS}.bak" > "${COUNTER_JS}"
+trap 'mv -f "${COUNTER_BACKUP}" "${COUNTER_JS}" 2>/dev/null || true' EXIT
+sed "s|REPLACE_WITH_API_URL|${API_URL}|g" "${COUNTER_BACKUP}" > "${COUNTER_JS}"
 
 if grep -q "REPLACE_WITH_API_URL" "${COUNTER_JS}"; then
   echo "ERROR: API URL placeholder was not replaced" >&2
