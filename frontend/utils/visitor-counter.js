@@ -15,14 +15,10 @@ function getCountEl() {
   return document.getElementById('visitor-count');
 }
 
-function showError(message) {
+function showError() {
   const el = getCountEl();
   if (!el) return;
-  el.textContent = message;
-  el.style.color = '#ff6b6b';
-  el.style.fontSize = '';
-  el.style.removeProperty('-webkit-text-fill-color');
-  el.style.background = 'none';
+  el.textContent = '\u2014';
 }
 
 // ── Counter animation ─────────────────────────────────────────────────────────
