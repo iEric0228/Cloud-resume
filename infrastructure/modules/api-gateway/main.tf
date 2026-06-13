@@ -12,7 +12,7 @@ terraform {
 resource "aws_api_gateway_rest_api" "visitor_api" {
   name        = "cloud-resume-api-${var.environment}"
   description = "API for Cloud Resume visitor counter"
-  
+
   endpoint_configuration {
     types = ["REGIONAL"]
   }
@@ -53,8 +53,8 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method = aws_api_gateway_method.count_method.http_method
 
   integration_http_method = "POST"
-  type                   = "AWS_PROXY"
-  uri                    = var.lambda_invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = var.lambda_invoke_arn
 }
 
 # API Gateway Integration (OPTIONS for CORS)
@@ -64,7 +64,7 @@ resource "aws_api_gateway_integration" "cors_integration" {
   http_method = aws_api_gateway_method.count_options.http_method
 
   type = "MOCK"
-  
+
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }

@@ -117,3 +117,10 @@ docker-compose.override.yml
 *.tar
 *.rar
 *.7z
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/

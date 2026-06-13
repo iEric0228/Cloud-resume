@@ -1,0 +1,132 @@
+name: Ephemeral Test
+
+# Manual-only: deploys the full stack, optionally keeps it alive for a few
+# minutes, then destroys it. Use this to validate a clean apply/destroy cycle
+# WITHOUT touching the persistent site managed by deploy.yml.
+#
+# NOTE: this shares Terraform state with deploy.yml. Running 'destroy-only'
+# (or the destroy phase) will tear down the live site. Use deliberately.
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'deploy-test-destroy'
+        type: choice
+        options:
+          - 'deploy-test-destroy'
+          - 'deploy-test-keep'
+          - 'destroy-only'
+      keep_alive_minutes:
+        description: 'Keep-alive time (minutes)'
+        required: false
+        default: '5'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.9.0
+  TF_STATE_BUCKET: ericchiu-terraform-state
+  TF_STATE_KEY_DEV: cloud-resume/dev/terraform.tfstate
+  TF_LOCK_TABLE: terraform-state-lock
+
+jobs:
+  ephemeral:
+    name: Deploy / Test / Destroy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::125156866057:role/github-OICD
+          role-session-name: cloud-resume-ephemeral-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform init
+        working-directory: ./infrastructure/environments/dev
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY_DEV }}" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="encrypt=true" \
+            -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+            -input=false
+
+      - name: Terraform apply
+        if: github.event.inputs.action != 'destroy-only'
+        working-directory: ./infrastructure/environments/dev
+        run: |
+          terraform plan -input=false -out=tfplan
+          terraform apply -input=false -auto-approve tfplan
+          {
+            echo "S3_BUCKET=$(terraform output -raw s3_bucket_name)"
+            echo "API_URL=$(terraform output -raw api_url)"
+            echo "CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id)"
+            echo "WEBSITE_URL=$(terraform output -raw website_url)"
+          } >> "$GITHUB_ENV"
+
+      - name: Publish frontend
+        if: github.event.inputs.action != 'destroy-only'
+        run: bash scripts/publish-frontend.sh
+
+      - name: Test deployment
+        if: github.event.inputs.action != 'destroy-only'
+        run: |
+          sleep 20
+          curl -fsS "$WEBSITE_URL" > /dev/null && echo "Website OK" || echo "::warning::Website test failed"
+          curl -fsS "$API_URL" | grep -q "visitor_count" && echo "API OK" || echo "::warning::API test failed"
+
+      - name: Keep alive
+        if: github.event.inputs.action == 'deploy-test-keep' || github.event.inputs.action == 'deploy-test-destroy'
+        run: |
+          minutes="${{ github.event.inputs.keep_alive_minutes || '5' }}"
+          echo "Keeping stack live for ${minutes} minute(s): $WEBSITE_URL"
+          sleep $(( minutes * 60 ))
+
+      - name: Cleanup
+        if: always() && (github.event.inputs.action == 'deploy-test-destroy' || github.event.inputs.action == 'destroy-only')
+        working-directory: ./infrastructure/environments/dev
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY_DEV }}" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="encrypt=true" \
+            -backend-config="dynamodb_table=${{ env.TF_LOCK_TABLE }}" \
+            -input=false || true
+
+          BUCKET="${S3_BUCKET:-$(terraform output -raw s3_bucket_name 2>/dev/null || echo '')}"
+          if [[ -n "$BUCKET" ]]; then
+            echo "Emptying s3://$BUCKET (all versions)..."
+            aws s3api list-object-versions --bucket "$BUCKET" --output json 2>/dev/null \
+              | jq -r '(.Versions[]?, .DeleteMarkers[]?) | "\(.Key)\t\(.VersionId)"' \
+              | while IFS=$'\t' read -r key vid; do
+                  [[ -n "$key" && -n "$vid" ]] && aws s3api delete-object --bucket "$BUCKET" --key "$key" --version-id "$vid" || true
+                done
+            aws s3 rm "s3://$BUCKET" --recursive || true
+          fi
+
+          echo "Destroying infrastructure..."
+          terraform destroy -auto-approve -input=false || true

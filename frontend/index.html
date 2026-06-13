@@ -10,49 +10,31 @@
   <meta property="og:url" content="https://www.ericchiu.page">
   <title>Eric Chiu — Cloud &amp; DevOps Engineer</title>
 
-  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
 
-  <!-- Loading screen -->
-  <div class="loading-screen" aria-hidden="true">
-    <div class="loading-screen__spinner"></div>
-  </div>
+  <a href="#main" class="skip-link">Skip to content</a>
 
-  <div class="container">
-
-    <!-- ===================== HEADER ===================== -->
-    <header class="header" role="banner">
-      <div class="header__content">
-        <h1 class="header__name">Eric Chiu</h1>
-        <p class="header__title">Cloud Engineer &amp; DevOps Specialist</p>
-        <p class="header__tagline">Building scalable cloud solutions with AWS, Terraform, and modern DevOps practices</p>
-      </div>
-
-      <nav class="contact-bar" aria-label="Contact links">
-        <a href="mailto:ericchiu0228@gmail.com" class="contact-bar__item" aria-label="Send email to Eric Chiu">
-          <i class="fas fa-envelope" aria-hidden="true"></i>
-          <span>ericchiu0228@gmail.com</span>
-        </a>
-        <a href="https://www.linkedin.com/in/eric-chiu-a610553a3/" class="contact-bar__item" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on LinkedIn">
-          <i class="fab fa-linkedin" aria-hidden="true"></i>
-          <span>LinkedIn</span>
-        </a>
-        <a href="https://github.com/iEric0228" class="contact-bar__item" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on GitHub">
-          <i class="fab fa-github" aria-hidden="true"></i>
-          <span>iEric0228</span>
-        </a>
-        <span class="contact-bar__item contact-bar__item--static">
-          <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-          <span>Boston, MA</span>
-        </span>
+  <!-- ===================== HEADER ===================== -->
+  <header class="header" role="banner">
+    <div class="header__inner">
+      <h1 class="header__name">Eric Chiu</h1>
+      <p class="header__role">Cloud Engineer &amp; DevOps Specialist</p>
+      <p class="header__tagline">Building scalable cloud solutions with AWS, Terraform, and modern DevOps practices</p>
+      <nav class="header__links" aria-label="Contact links">
+        <a href="mailto:ericchiu0228@gmail.com" aria-label="Send email to Eric Chiu">ericchiu0228@gmail.com</a>
+        <a href="https://www.linkedin.com/in/eric-chiu-a610553a3/" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on LinkedIn">LinkedIn</a>
+        <a href="https://github.com/iEric0228" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on GitHub">GitHub</a>
+        <span aria-label="Location">Boston, MA</span>
       </nav>
-    </header>
+    </div>
+  </header>
+
+  <main id="main">
 
     <!-- ===================== SUMMARY ===================== -->
     <section class="section" aria-labelledby="summary-heading">
@@ -68,11 +50,11 @@
     <!-- ===================== SKILLS ===================== -->
     <section class="section" aria-labelledby="skills-heading">
       <h2 id="skills-heading" class="section__title">Technical Skills</h2>
-      <div class="skills-grid">
+      <div class="skills">
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">Cloud Platforms</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">Cloud Platforms</h3>
+          <ul class="skills__list">
             <li>Amazon Web Services (AWS)</li>
             <li>S3, Lambda, API Gateway, CloudFront</li>
             <li>ECS Fargate, EKS, RDS, DynamoDB</li>
@@ -81,18 +63,18 @@
           </ul>
         </div>
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">Infrastructure as Code</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">Infrastructure as Code</h3>
+          <ul class="skills__list">
             <li>Terraform (modular, multi-environment)</li>
             <li>Remote state &amp; workspace management</li>
             <li>CloudFormation</li>
           </ul>
         </div>
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">DevOps &amp; CI/CD</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">DevOps &amp; CI/CD</h3>
+          <ul class="skills__list">
             <li>GitHub Actions (OIDC, multi-stage)</li>
             <li>Docker &amp; container orchestration</li>
             <li>Kubernetes (EKS + Karpenter)</li>
@@ -100,9 +82,9 @@
           </ul>
         </div>
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">FinOps &amp; Cost Optimization</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">FinOps &amp; Cost Optimization</h3>
+          <ul class="skills__list">
             <li>Automated resource cleanup pipelines</li>
             <li>Monthly savings reporting</li>
             <li>Right-sizing &amp; Fargate Spot</li>
@@ -110,9 +92,9 @@
           </ul>
         </div>
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">Security &amp; Observability</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">Security &amp; Observability</h3>
+          <ul class="skills__list">
             <li>IAM least-privilege design</li>
             <li>VPC isolation, WAF, SSL/TLS</li>
             <li>CloudWatch, Prometheus, Grafana</li>
@@ -120,9 +102,9 @@
           </ul>
         </div>
 
-        <div class="skill-card">
-          <h3 class="skill-card__title">Languages &amp; Config</h3>
-          <ul class="skill-card__list">
+        <div class="skills__group">
+          <h3 class="skills__label">Languages &amp; Config</h3>
+          <ul class="skills__list">
             <li>Python, Bash scripting</li>
             <li>HCL (Terraform), YAML</li>
             <li>Linux systems administration</li>
@@ -135,248 +117,213 @@
     <!-- ===================== PROJECTS ===================== -->
     <section class="section" aria-labelledby="projects-heading">
       <h2 id="projects-heading" class="section__title">Featured Projects</h2>
+      <div class="projects">
 
-      <!-- AI-SRE -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-robot" aria-hidden="true"></i>
-            AI-Assisted SRE Incident Analysis System
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">Step Functions</li><li class="tag">Bedrock</li>
-            <li class="tag">Lambda</li><li class="tag">Terraform</li><li class="tag">Python 3.11</li>
+        <!-- AI-SRE -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">AI-Assisted SRE Incident Analysis System</h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>Step Functions</code><code>Bedrock</code><code>Lambda</code><code>Terraform</code><code>Python 3.11</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Event-driven AWS serverless pipeline that automatically detects infrastructure issues via CloudWatch Alarms,
+            runs three parallel data collectors (metrics, logs, deploy context), and feeds the results to Amazon Bedrock
+            (Claude) to generate root-cause hypotheses with confidence levels &mdash; advisory-only, no auto-remediation.
+          </p>
+          <ul class="project__highlights">
+            <li>Parallel fan-out via Step Functions: Metrics Collector, Logs Collector &amp; Deploy Context Collector run simultaneously to minimise latency</li>
+            <li>AI analysis with Bedrock (Claude): root-cause hypotheses, supporting evidence, and actionable remediation recommendations</li>
+            <li>Multi-channel notifications: Slack webhooks + SNS email with rich formatting</li>
+            <li>90-day DynamoDB incident store with TTL, queryable by resource ARN, severity, or time range</li>
+            <li>Full observability: structured JSON logging, X-Ray distributed tracing, custom CloudWatch metrics</li>
           </ul>
-        </header>
-        <p class="project-card__description">
-          Event-driven AWS serverless pipeline that automatically detects infrastructure issues via CloudWatch Alarms,
-          runs three parallel data collectors (metrics, logs, deploy context), and feeds the results to Amazon Bedrock
-          (Claude) to generate root-cause hypotheses with confidence levels &mdash; advisory-only, no auto-remediation.
-        </p>
-        <ul class="project-card__highlights">
-          <li>Parallel fan-out via Step Functions: Metrics Collector, Logs Collector &amp; Deploy Context Collector run simultaneously to minimise latency</li>
-          <li>AI analysis with Bedrock (Claude): root-cause hypotheses, supporting evidence, and actionable remediation recommendations</li>
-          <li>Multi-channel notifications: Slack webhooks + SNS email with rich formatting</li>
-          <li>90-day DynamoDB incident store with TTL, queryable by resource ARN, severity, or time range</li>
-          <li>Full observability: structured JSON logging, X-Ray distributed tracing, custom CloudWatch metrics</li>
-        </ul>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/AI-SRE-INCIDENT-ANALYSIS-SYSTEM-AWS" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-        </footer>
-      </article>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/AI-SRE-INCIDENT-ANALYSIS-SYSTEM-AWS" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+          </footer>
+        </article>
 
-      <!-- MCP DevOps Mentor -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
-            MCP DevOps Mentor
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">Docker</li><li class="tag">Python</li>
-            <li class="tag">MCP</li><li class="tag">GitHub API</li><li class="tag">SQLite</li>
+        <!-- MCP DevOps Mentor -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">MCP DevOps Mentor</h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>Docker</code><code>Python</code><code>MCP</code><code>GitHub API</code><code>SQLite</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Dockerized MCP (Model Context Protocol) server that acts as a senior DevOps &amp; Cloud mentor inside your IDE.
+            Parses live GitHub repos, CI/CD pipelines, and Terraform files to give structured, production-grade feedback
+            &mdash; teaching how to think like a DevOps engineer, not just what to do.
+          </p>
+          <ul class="project__highlights">
+            <li>11 MCP tools: repo analysis, CI/CD review, Terraform audit, AWS cost advisor, skill tracker, learning path engine</li>
+            <li>4 review modes &mdash; Mentor, Review, Debug, Interview &mdash; each changes tone and depth of feedback</li>
+            <li>CI/CD engine checks: OIDC vs long-lived creds, action pinning, missing permissions blocks, job timeouts, concurrency groups</li>
+            <li>Terraform engine (HCL2 parsing): flags hardcoded secrets, missing remote backend, IAM wildcards, S3 without encryption</li>
+            <li>Skill tracker persists progress in SQLite and generates a personalised learning roadmap</li>
           </ul>
-        </header>
-        <p class="project-card__description">
-          Dockerized MCP (Model Context Protocol) server that acts as a senior DevOps &amp; Cloud mentor inside your IDE.
-          Parses live GitHub repos, CI/CD pipelines, and Terraform files to give structured, production-grade feedback
-          &mdash; teaching how to think like a DevOps engineer, not just what to do.
-        </p>
-        <ul class="project-card__highlights">
-          <li>11 MCP tools: repo analysis, CI/CD review, Terraform audit, AWS cost advisor, skill tracker, learning path engine</li>
-          <li>4 review modes &mdash; Mentor, Review, Debug, Interview &mdash; each changes tone and depth of feedback</li>
-          <li>CI/CD engine checks: OIDC vs long-lived creds, action pinning, missing permissions blocks, job timeouts, concurrency groups</li>
-          <li>Terraform engine (HCL2 parsing): flags hardcoded secrets, missing remote backend, IAM wildcards, S3 without encryption</li>
-          <li>Skill tracker persists progress in SQLite and generates a personalised learning roadmap</li>
-        </ul>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/MCP-DevOps-Mentor" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-        </footer>
-      </article>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/MCP-DevOps-Mentor" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+          </footer>
+        </article>
 
-      <!-- Aura -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-microchip" aria-hidden="true"></i>
-            Aura &mdash; AI-Driven EKS GPU Autoscaler
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">EKS</li><li class="tag">Karpenter</li>
-            <li class="tag">Terraform</li><li class="tag">Kubernetes</li><li class="tag">GitHub Actions</li>
+        <!-- Aura -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">Aura &mdash; AI-Driven EKS GPU Autoscaler</h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>EKS</code><code>Karpenter</code><code>Terraform</code><code>Kubernetes</code><code>GitHub Actions</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Modular Terraform + GitHub Actions system for ephemeral AWS EKS clusters that spin up on demand,
+            auto-scale GPU nodes with Karpenter, run batch AI workloads (Kubernetes Jobs), collect results,
+            then self-destruct &mdash; eliminating idle cluster costs entirely.
+          </p>
+          <ul class="project__highlights">
+            <li>Full lifecycle orchestration: Deploy &rarr; Run &rarr; Collect &rarr; Destroy via a single CI/CD pipeline</li>
+            <li>Karpenter provisioner with CPU &amp; GPU NodePool support for LLM inference workloads</li>
+            <li>Modular IaC: VPC, EKS, IAM, IAM_EKS, and OIDC provider as independent Terraform modules</li>
+            <li>OIDC identity federation &mdash; GitHub Actions as trusted identity provider, zero static AWS keys</li>
           </ul>
-        </header>
-        <p class="project-card__description">
-          Modular Terraform + GitHub Actions system for ephemeral AWS EKS clusters that spin up on demand,
-          auto-scale GPU nodes with Karpenter, run batch AI workloads (Kubernetes Jobs), collect results,
-          then self-destruct &mdash; eliminating idle cluster costs entirely.
-        </p>
-        <ul class="project-card__highlights">
-          <li>Full lifecycle orchestration: Deploy &rarr; Run &rarr; Collect &rarr; Destroy via a single CI/CD pipeline</li>
-          <li>Karpenter provisioner with CPU &amp; GPU NodePool support for LLM inference workloads</li>
-          <li>Modular IaC: VPC, EKS, IAM, IAM_EKS, and OIDC provider as independent Terraform modules</li>
-          <li>OIDC identity federation &mdash; GitHub Actions as trusted identity provider, zero static AWS keys</li>
-        </ul>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/Aura_AI-driven-Under-utilized-Resource-Autoscaler" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-        </footer>
-      </article>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/Aura_AI-driven-Under-utilized-Resource-Autoscaler" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+          </footer>
+        </article>
 
-      <!-- FinOps Zombie Hunter -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-dollar-sign" aria-hidden="true"></i>
-            FinOps Zombie Hunter
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">Lambda</li><li class="tag">EventBridge</li>
-            <li class="tag">Terraform</li><li class="tag">Python 3.12</li><li class="tag">GitHub Actions</li>
+        <!-- FinOps Zombie Hunter -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">FinOps Zombie Hunter</h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>Lambda</code><code>EventBridge</code><code>Terraform</code><code>Python 3.12</code><code>GitHub Actions</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Automated AWS cost-optimization engine that hunts orphaned "zombie" resources
+            (EBS volumes, NAT Gateways, RDS instances, Elastic IPs) across every enabled region,
+            triggered by EventBridge on a weekly Sunday cron schedule.
+          </p>
+          <ul class="project__highlights">
+            <li>CloudWatch metrics-based detection &mdash; flags resources by actual usage patterns, not just status</li>
+            <li>Cross-region: dynamically fetches all enabled AWS regions and audits each independently</li>
+            <li>Shift-left security: tfsec + flake8 in CI pipeline before any deployment</li>
+            <li>Modular IaC using Terraform <code>moved</code> blocks for zero-destroy refactoring</li>
+            <li>Sample output: <code>{"estimated_monthly_savings": "$347.50"}</code></li>
           </ul>
-        </header>
-        <p class="project-card__description">
-          Automated AWS cost-optimization engine that hunts orphaned "zombie" resources
-          (EBS volumes, NAT Gateways, RDS instances, Elastic IPs) across every enabled region,
-          triggered by EventBridge on a weekly Sunday cron schedule.
-        </p>
-        <ul class="project-card__highlights">
-          <li>CloudWatch metrics-based detection &mdash; flags resources by actual usage patterns, not just status</li>
-          <li>Cross-region: dynamically fetches all enabled AWS regions and audits each independently</li>
-          <li>Shift-left security: tfsec + flake8 in CI pipeline before any deployment</li>
-          <li>Modular IaC using Terraform <code>moved</code> blocks for zero-destroy refactoring</li>
-          <li>Sample output: <code>{"estimated_monthly_savings": "$347.50"}</code></li>
-        </ul>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/finops-zombie-hunter" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-        </footer>
-      </article>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/finops-zombie-hunter" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+          </footer>
+        </article>
 
-      <!-- 3-Tier App -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-server" aria-hidden="true"></i>
-            Enterprise 3-Tier Containerized App on AWS
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">ECS Fargate</li><li class="tag">RDS PostgreSQL</li>
-            <li class="tag">React</li><li class="tag">Node.js</li><li class="tag">Terraform</li><li class="tag">Docker</li>
+        <!-- 3-Tier App -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">Enterprise 3-Tier Containerized App on AWS</h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>ECS Fargate</code><code>RDS PostgreSQL</code><code>React</code><code>Node.js</code><code>Terraform</code><code>Docker</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Production-ready containerized web app: React (TypeScript + Nginx) frontend, Node.js (Express) backend,
+            and PostgreSQL 15 on RDS Multi-AZ &mdash; deployed on ECS Fargate behind an ALB with full VPC isolation,
+            enterprise security, and complete observability.
+          </p>
+          <ul class="project__highlights">
+            <li>3-tier: ALB &rarr; ECS Fargate frontend &rarr; ECS Fargate backend &rarr; RDS PostgreSQL (private subnet)</li>
+            <li>Security: Secrets Manager, WAF, SSL/TLS termination at ALB, security groups per tier</li>
+            <li>Observability: Prometheus metrics, CloudWatch logs, health checks, and alerting</li>
+            <li>Cost-optimised: Fargate Spot, RDS auto-pause, log retention policies, right-sizing</li>
+            <li>Performance targets: &lt;2s page load, &lt;500ms API response, 99.9% uptime</li>
           </ul>
-        </header>
-        <p class="project-card__description">
-          Production-ready containerized web app: React (TypeScript + Nginx) frontend, Node.js (Express) backend,
-          and PostgreSQL 15 on RDS Multi-AZ &mdash; deployed on ECS Fargate behind an ALB with full VPC isolation,
-          enterprise security, and complete observability.
-        </p>
-        <ul class="project-card__highlights">
-          <li>3-tier: ALB &rarr; ECS Fargate frontend &rarr; ECS Fargate backend &rarr; RDS PostgreSQL (private subnet)</li>
-          <li>Security: Secrets Manager, WAF, SSL/TLS termination at ALB, security groups per tier</li>
-          <li>Observability: Prometheus metrics, CloudWatch logs, health checks, and alerting</li>
-          <li>Cost-optimised: Fargate Spot, RDS auto-pause, log retention policies, right-sizing</li>
-          <li>Performance targets: &lt;2s page load, &lt;500ms API response, 99.9% uptime</li>
-        </ul>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/Containerized-3-Tier-Application" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-        </footer>
-      </article>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/Containerized-3-Tier-Application" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+          </footer>
+        </article>
 
-      <!-- Cloud Resume -->
-      <article class="project-card">
-        <header class="project-card__header">
-          <h3 class="project-card__title">
-            <i class="fas fa-cloud" aria-hidden="true"></i>
-            Cloud Resume Challenge
-            <span class="project-card__badge">This Website</span>
-          </h3>
-          <ul class="project-card__tags" aria-label="Technologies used">
-            <li class="tag">S3</li><li class="tag">CloudFront</li>
-            <li class="tag">Lambda</li><li class="tag">DynamoDB</li><li class="tag">Terraform</li>
-          </ul>
-        </header>
-        <p class="project-card__description">
-          Serverless resume website with a live visitor counter. Static assets served from S3 via CloudFront OAC,
-          visitor count stored in DynamoDB and incremented atomically by a Python Lambda behind API Gateway &mdash;
-          full IaC with modular Terraform, OIDC-based CI/CD, and custom domain at <strong>www.ericchiu.page</strong>.
-        </p>
-        <footer class="project-card__links">
-          <a href="https://github.com/iEric0228/Cloud-resume" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-github" aria-hidden="true"></i> View Code
-          </a>
-          <a href="https://www.ericchiu.page" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> Live Site
-          </a>
-        </footer>
-      </article>
+        <!-- Cloud Resume -->
+        <article class="project">
+          <header class="project__header">
+            <h3 class="project__name">
+              Cloud Resume Challenge
+              <span class="project__badge">This Website</span>
+            </h3>
+            <div class="project__tags" aria-label="Technologies used">
+              <code>S3</code><code>CloudFront</code><code>Lambda</code><code>DynamoDB</code><code>Terraform</code>
+            </div>
+          </header>
+          <p class="project__desc">
+            Serverless resume website with a live visitor counter. Static assets served from S3 via CloudFront OAC,
+            visitor count stored in DynamoDB and incremented atomically by a Python Lambda behind API Gateway &mdash;
+            full IaC with modular Terraform, OIDC-based CI/CD, and custom domain at <strong>www.ericchiu.page</strong>.
+          </p>
+          <footer class="project__links">
+            <a href="https://github.com/iEric0228/Cloud-resume" target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+            <a href="https://www.ericchiu.page" target="_blank" rel="noopener noreferrer">Live site &rarr;</a>
+          </footer>
+        </article>
 
+      </div>
     </section>
 
     <!-- ===================== EXPERIENCE ===================== -->
     <section class="section" aria-labelledby="experience-heading">
       <h2 id="experience-heading" class="section__title">Professional Experience</h2>
+      <div class="experience">
 
-      <div class="experience-card">
-        <div class="experience-card__header">
-          <h3 class="experience-card__role">Assistant Manager</h3>
-          <span class="experience-card__company">OneZo</span>
-          <span class="experience-card__duration">2018 &ndash; 2021</span>
+        <div class="experience__role">
+          <div class="experience__header">
+            <h3 class="experience__title">Assistant Manager</h3>
+            <span class="experience__company">OneZo</span>
+            <span class="experience__duration">2018 &ndash; 2021</span>
+          </div>
+          <ul class="experience__details">
+            <li><strong>Team Leadership:</strong> Managed daily operations and supervised a team of 6&ndash;10 staff, coordinating task assignments, scheduling, and performance feedback to maintain consistent service quality</li>
+            <li><strong>Operational Decision-Making:</strong> Acted as the on-site decision-maker in the manager&rsquo;s absence, triaging issues in real time and keeping operations running smoothly &mdash; a mindset directly applicable to incident response and on-call workflows</li>
+            <li><strong>Process Improvement:</strong> Identified bottlenecks in daily workflows and implemented streamlined procedures for inventory, opening/closing, and order fulfillment &mdash; mirroring continuous improvement principles in DevOps</li>
+            <li><strong>Training &amp; Mentorship:</strong> Onboarded and trained new team members on SOPs, food safety standards, and customer service best practices &mdash; building habits around documentation and knowledge transfer</li>
+            <li><strong>Cross-functional Coordination:</strong> Collaborated with the owner on supply chain logistics, staffing plans, and quality control, balancing competing priorities under tight timelines</li>
+          </ul>
         </div>
-        <ul class="experience-card__details">
-          <li><strong>Team Leadership:</strong> Managed daily operations and supervised a team of 6&ndash;10 staff, coordinating task assignments, scheduling, and performance feedback to maintain consistent service quality</li>
-          <li><strong>Operational Decision-Making:</strong> Acted as the on-site decision-maker in the manager&rsquo;s absence, triaging issues in real time and keeping operations running smoothly &mdash; a mindset directly applicable to incident response and on-call workflows</li>
-          <li><strong>Process Improvement:</strong> Identified bottlenecks in daily workflows and implemented streamlined procedures for inventory, opening/closing, and order fulfillment &mdash; mirroring continuous improvement principles in DevOps</li>
-          <li><strong>Training &amp; Mentorship:</strong> Onboarded and trained new team members on SOPs, food safety standards, and customer service best practices &mdash; building habits around documentation and knowledge transfer</li>
-          <li><strong>Cross-functional Coordination:</strong> Collaborated with the owner on supply chain logistics, staffing plans, and quality control, balancing competing priorities under tight timelines</li>
-        </ul>
-      </div>
 
-      <div class="experience-card">
-        <div class="experience-card__header">
-          <h3 class="experience-card__role">Shift Leader</h3>
-          <span class="experience-card__company">Teazzi</span>
-          <span class="experience-card__duration">2021 &ndash; 2024</span>
+        <div class="experience__role">
+          <div class="experience__header">
+            <h3 class="experience__title">Shift Leader</h3>
+            <span class="experience__company">Teazzi</span>
+            <span class="experience__duration">2021 &ndash; 2024</span>
+          </div>
+          <ul class="experience__details">
+            <li><strong>Shift Ownership:</strong> Led end-to-end shift operations including opening/closing, cash handling, and quality assurance &mdash; taking full accountability for outcomes, similar to owning a deployment pipeline from build to production</li>
+            <li><strong>Team Coordination:</strong> Directed a team of 4&ndash;6 baristas during high-volume periods, delegating tasks and adjusting roles on the fly to maintain throughput and service standards</li>
+            <li><strong>Problem Solving Under Pressure:</strong> Resolved equipment failures, supply shortages, and customer escalations in real time while keeping the team focused &mdash; building the composure and triage skills essential for production incident management</li>
+            <li><strong>Communication &amp; Collaboration:</strong> Maintained clear handoff notes between shifts and communicated operational updates to management, reinforcing the structured communication habits valued in DevOps and SRE teams</li>
+          </ul>
         </div>
-        <ul class="experience-card__details">
-          <li><strong>Shift Ownership:</strong> Led end-to-end shift operations including opening/closing, cash handling, and quality assurance &mdash; taking full accountability for outcomes, similar to owning a deployment pipeline from build to production</li>
-          <li><strong>Team Coordination:</strong> Directed a team of 4&ndash;6 baristas during high-volume periods, delegating tasks and adjusting roles on the fly to maintain throughput and service standards</li>
-          <li><strong>Problem Solving Under Pressure:</strong> Resolved equipment failures, supply shortages, and customer escalations in real time while keeping the team focused &mdash; building the composure and triage skills essential for production incident management</li>
-          <li><strong>Communication &amp; Collaboration:</strong> Maintained clear handoff notes between shifts and communicated operational updates to management, reinforcing the structured communication habits valued in DevOps and SRE teams</li>
-        </ul>
-      </div>
 
+      </div>
     </section>
 
     <!-- ===================== EDUCATION & CERTS ===================== -->
     <section class="section" aria-labelledby="education-heading">
       <h2 id="education-heading" class="section__title">Education &amp; Certifications</h2>
 
-      <div class="education-card">
-        <h3 class="education-card__degree">Computer Engineering</h3>
-        <span class="education-card__institution">University of Massachusetts Boston</span>
+      <div class="education">
+        <h3 class="education__degree">Computer Engineering</h3>
+        <span class="education__school">University of Massachusetts Boston</span>
       </div>
 
-      <div class="certifications">
-        <h3 class="certifications__title">Certifications</h3>
-        <ul class="certifications__list">
-          <li class="certifications__item certifications__item--earned">
-            <i class="fas fa-certificate" aria-hidden="true"></i>
+      <div class="certs">
+        <h3 class="certs__heading">Certifications</h3>
+        <ul class="certs__list">
+          <li class="certs__item certs__item--earned">
             AWS Certified Solutions Architect &ndash; Associate (SAA-C03)
           </li>
-          <li class="certifications__item certifications__item--earned">
-            <i class="fas fa-certificate" aria-hidden="true"></i>
+          <li class="certs__item certs__item--earned">
             AWS Cloud Practitioner
           </li>
-          <li class="certifications__item certifications__item--progress">
-            <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+          <li class="certs__item certs__item--progress">
             HashiCorp Terraform Associate &mdash; In Progress
           </li>
         </ul>
@@ -384,36 +331,43 @@
     </section>
 
     <!-- ===================== VISITOR COUNTER ===================== -->
-    <section class="section visitor-counter" aria-labelledby="counter-heading">
-      <h2 id="counter-heading" class="section__title section__title--light">
-        <i class="fas fa-eye" aria-hidden="true"></i>
-        Visitor Counter
-      </h2>
-      <div class="counter-display" role="status" aria-live="polite">
-        <span class="counter-display__label">This resume has been viewed</span>
-        <span id="visitor-count" class="counter-display__number" aria-label="Loading visitor count">Loading&hellip;</span>
-        <span class="counter-display__label">times</span>
+    <section class="section section--counter" aria-labelledby="counter-heading">
+      <h2 id="counter-heading" class="section__title">Live Metrics</h2>
+      <div class="counter">
+        <div class="counter__display">
+          <div class="counter__status">
+            <span class="counter__dot" aria-hidden="true"></span>
+            <span class="counter__status-text">Live</span>
+          </div>
+          <span id="visitor-count" class="counter__number" role="status" aria-live="polite" aria-label="Visitor count">&mdash;</span>
+          <span class="counter__label">total views</span>
+        </div>
+        <p class="counter__note">Powered by AWS Lambda &amp; DynamoDB</p>
       </div>
-      <p class="counter-display__note">Powered by AWS Lambda &amp; DynamoDB</p>
     </section>
 
-    <!-- ===================== FOOTER ===================== -->
-    <footer class="footer" role="contentinfo">
-      <p class="footer__copy">&copy; 2025 Eric Chiu &mdash; Built with AWS &amp; Terraform</p>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <div class="footer__info">
+        <p class="footer__copy">&copy; 2025 Eric Chiu</p>
+        <p class="footer__meta">Deployed via GitHub Actions &rarr; CloudFront</p>
+      </div>
       <nav class="footer__links" aria-label="Social links">
         <a href="mailto:ericchiu0228@gmail.com" class="footer__link" aria-label="Email Eric Chiu">
-          <i class="fas fa-envelope" aria-hidden="true"></i>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
         </a>
         <a href="https://www.linkedin.com/in/eric-chiu-a610553a3/" class="footer__link" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on LinkedIn">
-          <i class="fab fa-linkedin" aria-hidden="true"></i>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
         </a>
         <a href="https://github.com/iEric0228" class="footer__link" target="_blank" rel="noopener noreferrer" aria-label="Eric Chiu on GitHub">
-          <i class="fab fa-github" aria-hidden="true"></i>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         </a>
       </nav>
-    </footer>
-
-  </div><!-- /.container -->
+    </div>
+  </footer>
 
   <script src="utils/visitor-counter.js"></script>
   <script src="utils/animation.js"></script>
