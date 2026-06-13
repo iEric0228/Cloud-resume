@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/ericchiu/Documents/GitHub/Cloud-resume/scripts/preview-server.js"],
+      "port": 8000
+    }
+  ]
+}
