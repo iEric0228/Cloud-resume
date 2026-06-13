@@ -11,7 +11,6 @@ on:
       - 'frontend/**'
       - 'backend/**'
       - 'infrastructure/**'
-      - 'tests/**'
       - '.github/workflows/deploy.yml'
   pull_request:
     branches: [main]
@@ -62,8 +61,8 @@ jobs:
 
       - name: Lambda unit tests
         run: |
-          pip install -r tests/requirements-dev.txt
-          python -m pytest tests/ -q
+          pip install -r backend/lambda/requirements-dev.txt
+          python -m pytest backend/lambda/tests/ -q
 
       - name: Python lint (advisory)
         continue-on-error: true

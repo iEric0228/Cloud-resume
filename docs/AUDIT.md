@@ -35,7 +35,7 @@ All changes verified locally: `pytest` 5/5, `terraform fmt -check`, `terraform v
 
 | # | Change | Files |
 |---|---|---|
-| 1 | **Atomic counter.** Replaced read‑modify‑write (`get_item` + `SET`) with a single atomic `UpdateExpression="ADD #count :inc"` — eliminates the lost‑update race. Errors are logged server‑side and return a **generic** message (no internal leak). Added pytest+moto suite. | [handler.py](../backend/lambda/handler.py), [tests/](../tests/) |
+| 1 | **Atomic counter.** Replaced read‑modify‑write (`get_item` + `SET`) with a single atomic `UpdateExpression="ADD #count :inc"` — eliminates the lost‑update race. Errors are logged server‑side and return a **generic** message (no internal leak). Added pytest+moto suite. | [handler.py](../backend/lambda/handler.py), [tests/](../backend/lambda/tests/) |
 | 2 | **CI split.** New [`deploy.yml`](../.github/workflows/deploy.yml) deploys **persistently** on push to `main` (no auto‑destroy). The old monolith became [`ephemeral-test.yml`](../.github/workflows/ephemeral-test.yml) — manual deploy→test→destroy only. Added `concurrency` group to serialize state ops. | `.github/workflows/` |
 | 3 | **PR validation works.** `deploy.yml` adds a real `pull_request` trigger running `terraform fmt`/`validate` + Lambda tests (hard gates) and ESLint/ruff (advisory). The previous `if: pull_request` job was dead (no such trigger existed). | `deploy.yml` |
 | 4 | **CloudFront security headers.** New `aws_cloudfront_response_headers_policy` adds **HSTS, CSP, X‑Content‑Type‑Options, X‑Frame‑Options, Referrer‑Policy, X‑XSS‑Protection** to every response. CSP is a configurable variable (allows Google Fonts + regional API). | [cloudfront/main.tf](../infrastructure/modules/cloudfront/main.tf) |

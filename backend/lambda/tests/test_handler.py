@@ -1,141 +1,83 @@
-"""Unit tests for the Cloud Resume visitor counter Lambda handler."""
+"""Unit tests for the visitor-counter Lambda handler.
 
+The handler increments a single DynamoDB counter atomically (ADD) and returns
+the new value. Covers the contract the frontend depends on:
+- GET atomically increments and returns the new ``visitor_count``
+- the increment ADDs to the existing value (never resets it)
+- OPTIONS preflight returns 200 with CORS headers
+- failures return a generic 500 that does NOT leak internal error detail
+"""
 import json
-import os
-from unittest.mock import MagicMock, patch
 
+import boto3
 import pytest
+from moto import mock_aws
 
-# Set env before importing handler
-os.environ["TABLE_NAME"] = "test-visitor-count"
-
-
-@pytest.fixture
-def mock_dynamodb_table():
-    """Create a mock DynamoDB table."""
-    with patch("boto3.resource") as mock_resource:
-        mock_table = MagicMock()
-        mock_resource.return_value.Table.return_value = mock_table
-        yield mock_table
+TABLE_NAME = "cloud-resume-visitor-count-test"
+REGION = "us-east-1"
 
 
 @pytest.fixture
-def api_gw_event():
-    """Sample API Gateway event."""
-    return {
-        "httpMethod": "GET",
-        "path": "/",
-        "headers": {},
-        "body": None,
-    }
+def handler(monkeypatch):
+    """Import the handler with a mocked DynamoDB table in place."""
+    monkeypatch.setenv("AWS_DEFAULT_REGION", REGION)
+    monkeypatch.setenv("AWS_REGION", REGION)
+    monkeypatch.setenv("TABLE_NAME", TABLE_NAME)
 
-
-@pytest.fixture
-def options_event():
-    """Sample OPTIONS preflight event."""
-    return {
-        "httpMethod": "OPTIONS",
-        "path": "/",
-        "headers": {},
-        "body": None,
-    }
-
-
-class TestCorsHeaders:
-    def test_options_returns_200(self, options_event, mock_dynamodb_table):
-        from handler import lambda_handler
-
-        response = lambda_handler(options_event, None)
-
-        assert response["statusCode"] == 200
-        assert response["headers"]["Access-Control-Allow-Origin"] == "*"
-        assert "GET" in response["headers"]["Access-Control-Allow-Methods"]
-
-    def test_response_includes_cors_headers(self, api_gw_event, mock_dynamodb_table):
-        mock_dynamodb_table.get_item.return_value = {
-            "Item": {"id": "visitor_count", "count": 5}
-        }
-        mock_dynamodb_table.update_item.return_value = {}
-
-        from handler import lambda_handler
-
-        response = lambda_handler(api_gw_event, None)
-
-        assert "Access-Control-Allow-Origin" in response["headers"]
-
-
-class TestVisitorCounter:
-    def test_increments_existing_count(self, api_gw_event, mock_dynamodb_table):
-        mock_dynamodb_table.get_item.return_value = {
-            "Item": {"id": "visitor_count", "count": 41}
-        }
-        mock_dynamodb_table.update_item.return_value = {}
-
-        from handler import lambda_handler
-
-        response = lambda_handler(api_gw_event, None)
-        body = json.loads(response["body"])
-
-        assert response["statusCode"] == 200
-        assert body["visitor_count"] == 42
-
-    def test_starts_from_zero_when_no_item(self, api_gw_event, mock_dynamodb_table):
-        mock_dynamodb_table.get_item.return_value = {}
-        mock_dynamodb_table.update_item.return_value = {}
-
-        from handler import lambda_handler
-
-        response = lambda_handler(api_gw_event, None)
-        body = json.loads(response["body"])
-
-        assert response["statusCode"] == 200
-        assert body["visitor_count"] == 1
-
-    def test_calls_update_item_with_new_count(self, api_gw_event, mock_dynamodb_table):
-        mock_dynamodb_table.get_item.return_value = {
-            "Item": {"id": "visitor_count", "count": 10}
-        }
-        mock_dynamodb_table.update_item.return_value = {}
-
-        from handler import lambda_handler
-
-        lambda_handler(api_gw_event, None)
-
-        mock_dynamodb_table.update_item.assert_called_once()
-        call_kwargs = mock_dynamodb_table.update_item.call_args[1]
-        assert call_kwargs["ExpressionAttributeValues"][":val"] == 11
-
-    def test_handles_dynamodb_client_error(self, api_gw_event, mock_dynamodb_table):
-        from botocore.exceptions import ClientError
-
-        mock_dynamodb_table.get_item.side_effect = ClientError(
-            {"Error": {"Code": "ResourceNotFoundException", "Message": "Table not found"}},
-            "GetItem",
+    with mock_aws():
+        ddb = boto3.resource("dynamodb", region_name=REGION)
+        ddb.create_table(
+            TableName=TABLE_NAME,
+            KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
+            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
+            BillingMode="PAY_PER_REQUEST",
         )
-        mock_dynamodb_table.update_item.return_value = {}
+        import handler as handler_module
 
-        from handler import lambda_handler
+        yield handler_module
 
-        response = lambda_handler(api_gw_event, None)
 
-        # Should still attempt to update with count=1 after get_item fails
-        assert response["statusCode"] == 200
+def _invoke(handler, method="GET"):
+    return handler.lambda_handler({"httpMethod": method}, None)
 
-    def test_returns_500_on_update_failure(self, api_gw_event, mock_dynamodb_table):
-        from botocore.exceptions import ClientError
 
-        mock_dynamodb_table.get_item.return_value = {
-            "Item": {"id": "visitor_count", "count": 5}
-        }
-        mock_dynamodb_table.update_item.side_effect = ClientError(
-            {"Error": {"Code": "ConditionalCheckFailedException", "Message": "Update failed"}},
-            "UpdateItem",
-        )
+def test_get_increments_from_zero(handler):
+    first = _invoke(handler)
+    assert first["statusCode"] == 200
+    assert json.loads(first["body"])["visitor_count"] == 1
 
-        from handler import lambda_handler
+    second = _invoke(handler)
+    assert json.loads(second["body"])["visitor_count"] == 2
 
-        response = lambda_handler(api_gw_event, None)
 
-        assert response["statusCode"] == 500
-        body = json.loads(response["body"])
-        assert "error" in body
+def test_increment_adds_to_existing_value(handler):
+    boto3.resource("dynamodb", region_name=REGION).Table(TABLE_NAME).put_item(
+        Item={"id": "visitor_count", "count": 41}
+    )
+    resp = _invoke(handler)
+    assert json.loads(resp["body"])["visitor_count"] == 42
+
+
+def test_get_includes_cors_header(handler):
+    resp = _invoke(handler)
+    assert resp["headers"]["Access-Control-Allow-Origin"] == "*"
+
+
+def test_options_preflight(handler):
+    resp = _invoke(handler, method="OPTIONS")
+    assert resp["statusCode"] == 200
+    assert "GET" in resp["headers"]["Access-Control-Allow-Methods"]
+
+
+def test_failure_returns_generic_message(handler, monkeypatch):
+    # Point at a table that does not exist -> DynamoDB error.
+    monkeypatch.setenv("TABLE_NAME", "does-not-exist")
+    resp = _invoke(handler)
+
+    assert resp["statusCode"] == 500
+    body = json.loads(resp["body"])
+    # Must not leak internal exception detail to the client.
+    assert "details" not in body
+    serialized = json.dumps(body).lower()
+    for leak in ("resourcenotfound", "traceback", "exception", "table"):
+        assert leak not in serialized
