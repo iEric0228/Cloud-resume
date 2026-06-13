@@ -1,20 +1,23 @@
 <div align="center">
+
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=Eric%20Chiu&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=32&desc=DevOps%20%7C%20Cloud%20Engineer%20%7C%20AWS%20Certified&descAlignY=55&descSize=18" width="100%"/>
+
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/eric-chiu-a610553a3)
 [![Email](https://img.shields.io/badge/Email-EA4335?style=flat&logo=gmail&logoColor=white)](mailto:ericchiu0228@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=flat&logo=github&logoColor=white)](https://github.com/iEric0228)
 ![Profile Views](https://komarev.com/ghpvc/?username=iEric0228&color=blueviolet&style=flat)
 [![Open to Work](https://img.shields.io/badge/Open%20to%20Work-28a745?style=flat&logo=checkmarx&logoColor=white)](mailto:ericchiu0228@gmail.com)
+
 </div>
 
 # Cloud Resume Challenge - AWS Serverless Portfolio
 
 > **A modern, serverless resume website demonstrating cloud architecture, DevOps practices, and full-stack development skills.**
 
-[![Deploy Status](https://github.com/iEric0228/Cloud-resume/workflows/☁️%20Cloud%20Resume%20CI/CD/badge.svg)](https://github.com/iEric0228/Cloud-resume/actions)
+[![Deploy](https://github.com/iEric0228/Cloud-resume/actions/workflows/deploy.yml/badge.svg)](https://github.com/iEric0228/Cloud-resume/actions/workflows/deploy.yml)
 [![AWS](https://img.shields.io/badge/AWS-FF9900?style=flat-square&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![Terraform](https://img.shields.io/badge/Terraform-623CE4?style=flat-square&logo=terraform&logoColor=white)](https://terraform.io/)
-[![Infrastructure](https://img.shields.io/badge/Infrastructure-as%20Code-blue?style=flat-square)]()
+![Infrastructure](https://img.shields.io/badge/Infrastructure-as%20Code-blue?style=flat-square)
 
 **Live Site:** [https://ericchiu.page](https://ericchiu.page)
 
@@ -351,5 +354,5 @@ The `deploy-test-destroy` CI/CD mode costs nothing — infrastructure is torn do
 - Website: [ericchiu.page](https://ericchiu.page)
 - LinkedIn: [Eric Chiu](https://www.linkedin.com/in/eric-chiu-a610553a3/)
 - GitHub: [@iEric0228](https://github.com/iEric0228)
-- Email: ericchiu0228@gmail.com
+- Email: [ericchiu0228@gmail.com](mailto:ericchiu0228@gmail.com)
 
