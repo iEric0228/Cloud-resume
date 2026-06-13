@@ -36,3 +36,15 @@ variable "certificate_arn" {
   type        = string
   default     = null
 }
+
+variable "content_security_policy" {
+  description = "Content-Security-Policy header value applied to all responses. Default allows Google Fonts and the regional API Gateway (visitor counter)."
+  type        = string
+  default     = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.execute-api.us-east-1.amazonaws.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+}
+
+variable "hsts_preload" {
+  description = "Add the HSTS preload directive. Leave false unless you intend to submit the domain to the browser preload list (hard to reverse)."
+  type        = bool
+  default     = false
+}

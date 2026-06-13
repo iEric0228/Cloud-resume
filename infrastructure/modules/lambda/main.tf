@@ -62,7 +62,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
-          "dynamodb:Query", 
+          "dynamodb:Query",
           "dynamodb:Scan"
         ]
         Resource = var.dynamodb_table_arn
@@ -87,11 +87,11 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy" {
 resource "aws_lambda_function" "visitor_counter" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "cloud-resume-visitor-counter-${var.environment}"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "handler.lambda_handler"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "handler.lambda_handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  runtime         = "python3.12"
-  timeout         = 15
+  runtime          = "python3.12"
+  timeout          = 15
 
   environment {
     variables = {

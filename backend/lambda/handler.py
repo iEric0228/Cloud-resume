@@ -1,12 +1,21 @@
+"""Visitor-counter Lambda.
+
+Atomically increments a single DynamoDB counter and returns the new value.
+Behind API Gateway (AWS_PROXY). The frontend reads ``visitor_count`` from the
+JSON body.
+"""
 import json
+import logging
+import os
+
 import boto3
 from botocore.exceptions import ClientError
-import os
-import logging
 
-# Set up logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+DEFAULT_TABLE_NAME = "cloud-resume-visitor-count-dev"
+COUNTER_KEY = {"id": "visitor_count"}
 
 
 def get_cors_headers():
@@ -17,79 +26,49 @@ def get_cors_headers():
     }
 
 
-def lambda_handler(event, context):
-    logger.info(f"Received event: {json.dumps(event)}")
+def _response(status_code, body):
+    return {
+        "statusCode": status_code,
+        "headers": get_cors_headers(),
+        "body": json.dumps(body),
+    }
 
-    # Handle OPTIONS request for CORS preflight
+
+def lambda_handler(event, context):
+    logger.info("Received event: %s", json.dumps(event))
+
+    # CORS preflight
     if event.get("httpMethod") == "OPTIONS":
-        return {
-            "statusCode": 200,
-            "headers": get_cors_headers(),
-            "body": json.dumps({"message": "OK"}),
-        }
+        return _response(200, {"message": "OK"})
+
+    table_name = os.environ.get("TABLE_NAME", DEFAULT_TABLE_NAME)
+    region = os.environ.get("AWS_REGION", "us-east-1")
 
     try:
-        # Get table name from environment variable
-        table_name = os.environ.get("TABLE_NAME", "cloud-resume-visitor-count-dev")
-        logger.info(f"Using DynamoDB table: {table_name}")
+        table = boto3.resource("dynamodb", region_name=region).Table(table_name)
 
-        # Initialize DynamoDB resource
-        dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        table = dynamodb.Table(table_name)
-
-        # Get current count first
-        try:
-            response = table.get_item(Key={"id": "visitor_count"})
-            if "Item" in response:
-                current_count = int(response["Item"]["count"])
-                logger.info(f"Current visitor count: {current_count}")
-            else:
-                current_count = 0
-                logger.info("No existing visitor count found, starting from 0")
-        except ClientError as e:
-            logger.error(f"Error getting current count: {e}")
-            current_count = 0
-
-        # Increment count
-        new_count = current_count + 1
-        logger.info(f"Updating count to: {new_count}")
-
-        # Update the count in DynamoDB
-        table.update_item(
-            Key={"id": "visitor_count"},
-            UpdateExpression="SET #count = :val",
+        # Atomic increment. DynamoDB `ADD` treats a missing attribute as 0, so
+        # concurrent invocations can never read-modify-write over each other and
+        # lose a count. This replaces the previous get_item + SET race.
+        result = table.update_item(
+            Key=COUNTER_KEY,
+            UpdateExpression="ADD #count :inc",
             ExpressionAttributeNames={"#count": "count"},
-            ExpressionAttributeValues={":val": new_count},
+            ExpressionAttributeValues={":inc": 1},
             ReturnValues="UPDATED_NEW",
         )
+        new_count = int(result["Attributes"]["count"])
+        logger.info("Visitor count incremented to %s", new_count)
 
-        logger.info(f"Successfully updated visitor count to: {new_count}")
-
-        return {
-            "statusCode": 200,
-            "headers": get_cors_headers(),
-            "body": json.dumps({"visitor_count": new_count}),
-        }
+        return _response(200, {"visitor_count": new_count})
 
     except ClientError as e:
-        error_code = e.response["Error"]["Code"]
-        error_message = e.response["Error"]["Message"]
-        logger.error(f"DynamoDB error ({error_code}): {error_message}")
+        # Log full detail server-side; return a generic message to the client
+        # so internal error codes are never leaked in the response body.
+        error_code = e.response.get("Error", {}).get("Code", "Unknown")
+        logger.error("DynamoDB error (%s)", error_code, exc_info=True)
+        return _response(500, {"error": "Failed to update visitor count"})
 
-        return {
-            "statusCode": 500,
-            "headers": get_cors_headers(),
-            "body": json.dumps(
-                {
-                    "error": "Failed to update visitor count",
-                    "details": f"DynamoDB error: {error_code} - {error_message}",
-                }
-            ),
-        }
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return {
-            "statusCode": 500,
-            "headers": get_cors_headers(),
-            "body": json.dumps({"error": "Internal server error", "details": str(e)}),
-        }
+    except Exception:
+        logger.error("Unexpected error", exc_info=True)
+        return _response(500, {"error": "Internal server error"})

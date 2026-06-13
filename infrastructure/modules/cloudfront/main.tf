@@ -25,6 +25,48 @@ resource "random_string" "oac_suffix" {
   upper   = false
 }
 
+# ── Security Headers Policy ───────────────────────────────────────────────────
+# Adds HSTS, CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy and
+# X-XSS-Protection to every response served by the distribution.
+resource "aws_cloudfront_response_headers_policy" "security" {
+  name    = "${var.project_name}-${var.environment}-security-headers-${random_string.oac_suffix.result}"
+  comment = "Security headers for ${var.environment}"
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = var.content_security_policy
+      override                = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = var.hsts_preload
+      override                   = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+  }
+}
+
 # ── Origin Access Control ─────────────────────────────────────────────────────
 resource "aws_cloudfront_origin_access_control" "s3_oac" {
   name                              = "${var.project_name}-${var.environment}-oac-${random_string.oac_suffix.result}"
@@ -60,14 +102,16 @@ resource "aws_cloudfront_distribution" "this" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+
     forwarded_values {
       query_string = false
       cookies { forward = "none" }
     }
 
     min_ttl     = 0
-    default_ttl = 3600   # 1 hour
-    max_ttl     = 86400  # 24 hours
+    default_ttl = 3600  # 1 hour
+    max_ttl     = 86400 # 24 hours
   }
 
   # ── SPA Error Handling ─────────────────────────────────────────────────────
