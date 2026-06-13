@@ -1,6 +1,7 @@
 """Unit tests for the visitor-counter Lambda handler.
 
-Covers the contract the frontend depends on:
+The handler increments a single DynamoDB counter atomically (ADD) and returns
+the new value. Covers the contract the frontend depends on:
 - GET atomically increments and returns the new ``visitor_count``
 - the increment ADDs to the existing value (never resets it)
 - OPTIONS preflight returns 200 with CORS headers
@@ -50,9 +51,9 @@ def test_get_increments_from_zero(handler):
 
 
 def test_increment_adds_to_existing_value(handler):
-    ddb = boto3.resource("dynamodb", region_name=REGION)
-    ddb.Table(TABLE_NAME).put_item(Item={"id": "visitor_count", "count": 41})
-
+    boto3.resource("dynamodb", region_name=REGION).Table(TABLE_NAME).put_item(
+        Item={"id": "visitor_count", "count": 41}
+    )
     resp = _invoke(handler)
     assert json.loads(resp["body"])["visitor_count"] == 42
 
@@ -65,7 +66,7 @@ def test_get_includes_cors_header(handler):
 def test_options_preflight(handler):
     resp = _invoke(handler, method="OPTIONS")
     assert resp["statusCode"] == 200
-    assert "Access-Control-Allow-Methods" in resp["headers"]
+    assert "GET" in resp["headers"]["Access-Control-Allow-Methods"]
 
 
 def test_failure_returns_generic_message(handler, monkeypatch):
