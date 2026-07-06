@@ -1,14 +1,42 @@
 /**
  * animation.js
- * Progressive enhancements (all gated on prefers-reduced-motion):
- *   1. Scroll-triggered staggered fade-in for sections, projects, skills
- *   2. Scroll progress indicator bar
- *   3. Pointer-tracking spotlight on project cards (fine pointers only)
+ * Progressive enhancements. Motion effects are gated on prefers-reduced-motion;
+ * the sticky-nav state and footer year are not motion, so they always run.
+ *   1. Sticky-nav background/blur once the page scrolls
+ *   2. Footer year injection
+ *   3. Scroll-triggered staggered fade-in for sections, projects, stats (motion)
+ *   4. Scroll progress indicator bar (motion)
+ *   5. Count-up for the stats strip (motion)
+ *   6. Pointer-tracking spotlight on project cards, fine pointers only (motion)
  */
 (() => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ── 1. Scroll reveal ──────────────────────────────────────────────────────
+  // ── 1. Sticky-nav state (not motion) ──────────────────────────────────────
+  const initNavState = () => {
+    const nav = document.querySelector('.nav');
+    if (!nav) return;
+    let ticking = false;
+    const update = () => {
+      nav.classList.toggle('is-scrolled', window.scrollY > 8);
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+  };
+
+  // ── 2. Footer year (not motion) ───────────────────────────────────────────
+  const initYear = () => {
+    const el = document.getElementById('year');
+    if (el) el.textContent = String(new Date().getFullYear());
+  };
+
+  // ── 3. Scroll reveal ──────────────────────────────────────────────────────
   const initScrollReveal = () => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -25,7 +53,7 @@
     const stagger = (elements, baseDelay) => {
       elements.forEach((el, i) => {
         el.classList.add('fade-in-up');
-        el.style.transitionDelay = `${baseDelay + i * 80}ms`;
+        el.style.transitionDelay = `${baseDelay + i * 70}ms`;
         observer.observe(el);
       });
     };
@@ -35,10 +63,10 @@
       observer.observe(el);
     });
     stagger(document.querySelectorAll('.project'), 0);
-    stagger(document.querySelectorAll('.skills__group'), 0);
+    stagger(document.querySelectorAll('.stat'), 0);
   };
 
-  // ── 2. Scroll progress bar ────────────────────────────────────────────────
+  // ── 4. Scroll progress bar ────────────────────────────────────────────────
   const initScrollProgress = () => {
     const bar = document.createElement('div');
     bar.className = 'scroll-progress';
@@ -54,20 +82,49 @@
       ticking = false;
     };
 
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(update);
-          ticking = true;
-        }
-      },
-      { passive: true }
-    );
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
     update();
   };
 
-  // ── 3. Pointer spotlight on project cards ─────────────────────────────────
+  // ── 5. Stats count-up ─────────────────────────────────────────────────────
+  const initCountUp = () => {
+    const els = document.querySelectorAll('[data-count]');
+    if (!els.length) return;
+
+    const DURATION = 1200;
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    const run = (el) => {
+      const target = Number(el.dataset.count);
+      if (!Number.isFinite(target)) return;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - start) / DURATION, 1);
+        el.textContent = String(Math.round(target * easeOut(progress)));
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = String(target);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          run(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    els.forEach((el) => observer.observe(el));
+  };
+
+  // ── 6. Pointer spotlight on project cards ─────────────────────────────────
   const initSpotlight = () => {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
@@ -91,9 +148,14 @@
   };
 
   const init = () => {
+    // Always run — these are not motion effects.
+    initNavState();
+    initYear();
     if (reduceMotion) return;
+    // Motion-only enhancements below.
     initScrollReveal();
     initScrollProgress();
+    initCountUp();
     initSpotlight();
   };
 
