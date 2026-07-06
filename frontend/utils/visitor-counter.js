@@ -6,9 +6,21 @@
 
 const VISITOR_API_URL = 'REPLACE_WITH_API_URL';
 
+// Public API Gateway endpoint (already exposed in the deployed bundle — not a secret).
+// Resilient fallback so the count still renders when the CI placeholder is not injected
+// (e.g. local preview, or a deploy where injection was skipped).
+const FALLBACK_API_URL = 'https://nm17e5j01b.execute-api.us-east-1.amazonaws.com/prod/count';
+
 const MAX_RETRIES   = 3;
 const BASE_DELAY_MS = 1000;
 const ANIM_DURATION = 2000;
+
+// Prefer the CI-injected URL; fall back to the known public endpoint.
+function resolveApiUrl() {
+  return VISITOR_API_URL && !VISITOR_API_URL.includes('REPLACE_WITH')
+    ? VISITOR_API_URL
+    : FALLBACK_API_URL;
+}
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 function getCountEl() {
@@ -22,7 +34,22 @@ function showError() {
 }
 
 // ── Counter animation ─────────────────────────────────────────────────────────
+function setFinal(el, target) {
+  el.textContent = target.toLocaleString();
+  el.classList.add('counter-display__number--final');
+}
+
 function animateCount(el, target) {
+  // Show the number immediately when animation can't/shouldn't run:
+  //  - reduced-motion users (a count-up is motion)
+  //  - a hidden/backgrounded tab, where requestAnimationFrame is throttled and
+  //    would otherwise leave the value stuck on the placeholder.
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced || document.hidden) {
+    setFinal(el, target);
+    return;
+  }
+
   const start     = Date.now();
   const easeOut   = (t) => 1 - Math.pow(1 - t, 3);
 
@@ -33,9 +60,7 @@ function animateCount(el, target) {
     if (progress < 1) {
       requestAnimationFrame(tick);
     } else {
-      el.textContent = target.toLocaleString();
-      // Apply golden gradient via CSS class (not inline style) to avoid conflict
-      el.classList.add('counter-display__number--final');
+      setFinal(el, target);
     }
   };
 
@@ -51,7 +76,7 @@ function extractCount(data) {
 
 // ── Fetch with retry ──────────────────────────────────────────────────────────
 async function fetchCount(attempt = 1) {
-  const response = await fetch(VISITOR_API_URL, {
+  const response = await fetch(resolveApiUrl(), {
     method:  'GET',
     headers: { 'Content-Type': 'application/json' },
     signal:  AbortSignal.timeout(8000),
@@ -78,26 +103,21 @@ async function fetchWithRetry() {
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 async function initVisitorCounter() {
-  // Guard: URL not yet injected (local dev / preview)
-  if (!VISITOR_API_URL || VISITOR_API_URL.includes('REPLACE_WITH')) {
-    showError('(dev mode)');
-    return;
-  }
-
-  if (!VISITOR_API_URL.startsWith('https://')) {
-    showError('Invalid API URL');
-    return;
-  }
-
   const el = getCountEl();
   if (!el) return;
+
+  const apiUrl = resolveApiUrl();
+  if (!apiUrl.startsWith('https://')) {
+    showError();
+    return;
+  }
 
   try {
     const count = await fetchWithRetry();
     animateCount(el, count);
   } catch (err) {
     console.error('[visitor-counter] Failed after retries:', err.message);
-    showError('Unavailable');
+    showError();
   }
 }
 
