@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Résumé — Eric Chiu, Cloud / DevOps / SRE. AWS Certified Solutions Architect (SAA-C03).">
+  <title>Eric Chiu — Résumé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Print-first résumé. Screen shows a dark sheet; print outputs clean black-on-white.
+       Save as PDF: Cmd/Ctrl-P → "Save as PDF". Free — no external service. */
+    :root {
+      --ink: #0b0e14; --muted: #4b5563; --line: #d4d8de; --accent: #157f43;
+      --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--sans);
+      background: #0b0e14;
+      color: #cbd5e1;
+      padding: 32px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .toolbar {
+      max-width: 800px; margin: 0 auto 16px; display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; font-size: 13px; color: #8593a5;
+    }
+    .toolbar a { color: #4ade80; text-decoration: none; font-family: var(--mono); }
+    .print-btn {
+      font-family: var(--sans); font-weight: 600; font-size: 13px; cursor: pointer;
+      background: #22c55e; color: #04140a; border: none; border-radius: 6px; padding: 8px 14px;
+    }
+    .sheet {
+      max-width: 800px; margin: 0 auto; background: #fff; color: var(--ink);
+      padding: 44px 48px; border-radius: 8px; line-height: 1.5;
+    }
+    h1 { font-size: 26px; letter-spacing: -0.02em; }
+    .role { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-top: 3px; }
+    .contact { font-size: 12.5px; color: var(--muted); margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .contact a { color: var(--muted); text-decoration: none; }
+    h2 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
+      border-bottom: 1.5px solid var(--line); padding-bottom: 4px; margin: 22px 0 12px;
+      font-family: var(--mono); font-weight: 500;
+    }
+    p.summary { font-size: 13px; color: #1f2937; }
+    .entry { margin-bottom: 14px; }
+    .entry__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .entry__title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .entry__title .tech { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; }
+    .entry__date { font-family: var(--mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+    ul { list-style: none; margin-top: 5px; }
+    ul li { font-size: 12.5px; color: #374151; padding-left: 14px; position: relative; margin-bottom: 2px; }
+    ul li::before { content: '–'; position: absolute; left: 2px; color: var(--accent); }
+    .skills { display: grid; grid-template-columns: 130px 1fr; gap: 3px 12px; font-size: 12.5px; }
+    .skills dt { font-weight: 600; color: var(--ink); }
+    .skills dd { color: #374151; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; }
+    .cert { font-size: 12.5px; color: #374151; }
+    .cert b { color: var(--ink); font-weight: 600; }
+    @media print {
+      body { background: #fff; padding: 0; color: #000; }
+      .toolbar { display: none; }
+      .sheet { max-width: none; margin: 0; padding: 0; border-radius: 0; }
+      h2 { margin-top: 16px; }
+      a { color: #000 !important; }
+    }
+    @page { margin: 14mm; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a href="index.html">&larr; Back to site</a>
+    <button class="print-btn" onclick="window.print()">Save as PDF / Print</button>
+  </div>
+
+  <main class="sheet">
+    <header>
+      <h1>Eric Chiu</h1>
+      <p class="role">Cloud / DevOps / SRE</p>
+      <div class="contact">
+        <a href="mailto:ericchiu0228@gmail.com">ericchiu0228@gmail.com</a>
+        <span>Boston, MA (open to relocate)</span>
+        <a href="https://www.ericchiu.page">ericchiu.page</a>
+        <a href="https://github.com/iEric0228">github.com/iEric0228</a>
+        <a href="https://www.linkedin.com/in/eric-chiu-a610553a3/">linkedin.com/in/eric-chiu</a>
+        <!-- TODO: add phone number if you want it on the résumé -->
+      </div>
+    </header>
+
+    <h2>Summary</h2>
+    <p class="summary">
+      AWS-certified Cloud/DevOps engineer and recent Computer Engineering graduate, with 6 years of frontline
+      operations leadership. Build production-grade AWS infrastructure as code — Terraform + GitHub Actions with
+      OIDC (zero static keys), serverless-first, with observability and cost hygiene built in. Standout project:
+      an AI-assisted SRE incident-analysis pipeline (Step Functions + Bedrock) that triages incidents in ~6 seconds.
+    </p>
+
+    <h2>Technical Skills</h2>
+    <dl class="skills">
+      <dt>Cloud (AWS)</dt><dd>ECS Fargate, EKS, Lambda, Step Functions, EventBridge, Bedrock, RDS, DynamoDB, S3, CloudFront, API Gateway, VPC, IAM, WAF, Secrets Manager</dd>
+      <dt>IaC &amp; CI/CD</dt><dd>Terraform (modular, multi-env, remote state), GitHub Actions (OIDC, multi-stage), CloudFormation</dd>
+      <dt>Containers &amp; Orch.</dt><dd>Docker, Kubernetes (EKS + Karpenter)</dd>
+      <dt>Observability</dt><dd>LGTM stack (Grafana, Loki, Tempo, Mimir), CloudWatch, X-Ray, Prometheus</dd>
+      <dt>Security &amp; FinOps</dt><dd>IAM least-privilege, tfsec, OIDC federation, cost cleanup automation, right-sizing, Fargate/GPU Spot</dd>
+      <dt>Languages</dt><dd>Python, Bash, HCL, YAML, SQL; Linux administration</dd>
+    </dl>
+
+    <h2>Selected Projects</h2>
+
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">AI-Assisted SRE Incident Analysis <span class="tech">Step Functions · Bedrock · Lambda · Terraform</span></span>
+        <span class="entry__date">github.com/iEric0228</span>
+      </div>
+      <ul>
+        <li>Event-driven serverless pipeline: EventBridge triggers a Step Functions fan-out of three parallel collectors (metrics, logs, deploy context), analyzed by Amazon Bedrock for root-cause hypotheses.</li>
+        <li>Advisory-only by design — IAM explicitly denies the analyzer any mutating action; results stored in DynamoDB (90-day TTL) and pushed to Slack/SNS.</li>
+        <li>~6s end-to-end triage; ARM64 Lambda and Express Step Functions for ~$5/month per 100 incidents.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">Enterprise 3-Tier App on ECS Fargate <span class="tech">ECS · RDS · LGTM · Terraform</span></span>
+      </div>
+      <ul>
+        <li>React + Node.js + PostgreSQL (Multi-AZ) on ECS Fargate behind an ALB with full VPC isolation; refactored a 1,200-line monolith into 9 focused services.</li>
+        <li>Full LGTM observability stack, Secrets Manager, WAF, TLS termination; cost-tuned with Fargate Spot and RDS auto-pause.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">Aura — EKS GPU Autoscaler <span class="tech">EKS · Karpenter · Terraform · GitHub Actions</span></span>
+      </div>
+      <ul>
+        <li>Ephemeral EKS clusters that deploy, run a batch AI workload, collect results, and self-destruct — Karpenter scales GPU NodePools to zero to eliminate idle cost.</li>
+        <li>OIDC identity federation: GitHub Actions as trusted IdP, zero static AWS keys.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">FinOps Zombie Hunter <span class="tech">Lambda · EventBridge · Terraform · tfsec</span></span>
+      </div>
+      <ul>
+        <li>Scheduled Lambda that hunts orphaned resources (EBS, NAT Gateways, RDS, EIPs) across all enabled regions; flagged ~$230/month of waste in a test account.</li>
+        <li>Dry-run by default with a report-only vs. delete safety model; tfsec + flake8 gate the CI pipeline.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">Cloud Resume (ericchiu.page) <span class="tech">S3 · CloudFront · Lambda · DynamoDB · Terraform</span></span>
+      </div>
+      <ul>
+        <li>Serverless resume site with a live visitor counter (Python Lambda + DynamoDB behind API Gateway); full IaC and OIDC-based CI/CD to S3 + CloudFront.</li>
+      </ul>
+    </div>
+
+    <h2>Operations Leadership</h2>
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">Shift Leader — Teazzi</span>
+        <span class="entry__date">2021 – 2024</span>
+      </div>
+      <ul>
+        <li>Ran live operations for a high-volume location — real-time triage of equipment failures, supply shortages, and customer escalations under rush-hour load.</li>
+        <li>Built the closing/shift-handoff checklist that cut transition errors; directed a 4–6 person team through peak throughput.</li>
+      </ul>
+    </div>
+    <div class="entry">
+      <div class="entry__head">
+        <span class="entry__title">Assistant Manager — OneZo</span>
+        <span class="entry__date">2018 – 2021</span>
+      </div>
+      <ul>
+        <li>On-site decision-maker in the manager's absence; supervised 6–10 staff with scheduling, onboarding, and SOP training.</li>
+        <li>Partnered with ownership on inventory, staffing, and quality control against tight timelines.</li>
+      </ul>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <h2>Education</h2>
+        <!-- TODO: add graduation year -->
+        <p class="cert"><b>B.S. Computer Engineering</b><br>University of Massachusetts Boston</p>
+      </div>
+      <div>
+        <h2>Certifications</h2>
+        <!-- TODO: add Credly badge URLs if you want them verifiable in the PDF -->
+        <p class="cert"><b>AWS Solutions Architect – Associate</b> (SAA-C03)<br>
+        <b>AWS Cloud Practitioner</b> (CLF-C02)<br>
+        <span style="color:#6b7280">In progress: HashiCorp Terraform Associate</span></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
