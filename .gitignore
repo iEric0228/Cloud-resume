@@ -85,8 +85,13 @@ coverage/
 .next/
 .nuxt/
 .gatsby/
-public/
 out/
+
+# frontend/ is now a generated build artifact (vite build --outDir ../frontend
+# from web/); the React source of truth lives in web/. web/public/ is source
+# (config.js, resume.html, favicon) and must stay tracked, so it's excluded below.
+/frontend/
+!web/public/
 
 # CDK (Cloud Development Kit)
 cdk.out/
