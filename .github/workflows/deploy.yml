@@ -64,14 +64,12 @@ jobs:
           pip install -r backend/lambda/requirements-dev.txt
           python -m pytest backend/lambda/tests/ -q
 
-      - name: Python lint (advisory)
-        continue-on-error: true
+      - name: Python lint
         run: |
           pip install ruff
           ruff check backend scripts
 
-      - name: JS lint (advisory)
-        continue-on-error: true
+      - name: JS lint
         run: |
           npm install --no-save eslint @eslint/js globals
           npx eslint .
@@ -97,7 +95,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::125156866057:role/github-OICD
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: cloud-resume-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 

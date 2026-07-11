@@ -4,11 +4,8 @@
 Website validation and testing script
 """
 import requests
-import boto3
-import json
 import sys
 import os
-from urllib.parse import urlparse
 
 class WebsiteValidator:
     def __init__(self, domain):

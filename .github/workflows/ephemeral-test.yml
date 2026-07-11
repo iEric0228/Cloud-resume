@@ -59,7 +59,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::125156866057:role/github-OICD
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: cloud-resume-ephemeral-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 

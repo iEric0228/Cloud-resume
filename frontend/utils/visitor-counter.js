@@ -75,7 +75,7 @@ function extractCount(data) {
 }
 
 // ── Fetch with retry ──────────────────────────────────────────────────────────
-async function fetchCount(attempt = 1) {
+async function fetchCount() {
   const response = await fetch(resolveApiUrl(), {
     method:  'GET',
     headers: { 'Content-Type': 'application/json' },
@@ -93,7 +93,7 @@ async function fetchCount(attempt = 1) {
 async function fetchWithRetry() {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      return await fetchCount(attempt);
+      return await fetchCount();
     } catch (err) {
       if (attempt === MAX_RETRIES) throw err;
       await new Promise((res) => setTimeout(res, BASE_DELAY_MS * attempt));
