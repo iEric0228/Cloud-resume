@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Github, Linkedin, Menu, X } from 'lucide-react';
 import { profile } from '../data/profile.js';
 
@@ -9,15 +10,36 @@ const LINKS = [
   { href: '#contact', label: 'Contact' },
 ];
 
+const SECTION_IDS = LINKS.map((l) => l.href.slice(1));
+
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(Boolean);
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -35,11 +57,25 @@ export default function Nav() {
         </a>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="hover:text-white transition-colors">
-              {l.label}
-            </a>
-          ))}
+          {LINKS.map((l) => {
+            const isActive = active === l.href.slice(1);
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                className={`relative pb-1.5 transition-colors ${isActive ? 'text-white' : 'hover:text-white'}`}
+              >
+                {l.label}
+                {isActive && (
+                  <motion.span
+                    layoutId="nav-active-underline"
+                    className="absolute left-0 right-0 bottom-0 h-[1.5px] rounded-full bg-accent"
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+              </a>
+            );
+          })}
           <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
             Résumé
           </a>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import SectionHeading from './SectionHeading.jsx';
 import { stackCategories } from '../data/stack.js';
+import { handleSpotlightMove } from '../utils/spotlight.js';
 
 export default function TechStack() {
   return (
@@ -19,7 +20,8 @@ export default function TechStack() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: ci * 0.1, duration: 0.5 }}
-            className="card p-6"
+            onMouseMove={handleSpotlightMove}
+            className="spotlight card card-hover p-6"
           >
             <h3 className="font-mono text-xs uppercase tracking-[0.14em] text-muted mb-4">{cat.label}</h3>
             <div className="flex flex-wrap gap-2">

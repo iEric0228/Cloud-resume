@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Github, ExternalLink, Workflow, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { handleSpotlightMove } from '../utils/spotlight.js';
 
 export default function ProjectCard({ project, index }) {
   const [open, setOpen] = useState(false);
@@ -11,7 +12,8 @@ export default function ProjectCard({ project, index }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ delay: (index % 2) * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="card card-hover p-7 flex flex-col"
+      onMouseMove={handleSpotlightMove}
+      className="spotlight card card-hover p-7 flex flex-col"
     >
       <div className="flex items-start justify-between gap-4">
         <h3 className="text-xl font-semibold tracking-tight">{project.title}</h3>

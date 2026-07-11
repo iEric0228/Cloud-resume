@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { Download, Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
 import { profile } from '../data/profile.js';
+import Magnetic from './Magnetic.jsx';
+import Stats from './Stats.jsx';
+import { handleSpotlightMove } from '../utils/spotlight.js';
 
 const NODES = ['AWS', 'Terraform', 'Docker', 'Kubernetes', 'CI/CD'];
 
@@ -45,12 +48,16 @@ export default function Hero() {
           </motion.p>
 
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mt-9 flex flex-wrap items-center gap-3">
-            <a href="#projects" className="btn-primary">
-              View Projects <ArrowRight size={16} />
-            </a>
-            <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
-              <Download size={16} /> Download Resume
-            </a>
+            <Magnetic strength={0.3}>
+              <a href="#projects" className="btn-primary">
+                View Projects <ArrowRight size={16} />
+              </a>
+            </Magnetic>
+            <Magnetic strength={0.3}>
+              <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+                <Download size={16} /> Download Resume
+              </a>
+            </Magnetic>
           </motion.div>
 
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4} className="mt-8 flex items-center gap-5 text-muted">
@@ -64,6 +71,8 @@ export default function Hero() {
               <Mail size={20} />
             </a>
           </motion.div>
+
+          <Stats />
         </div>
 
         <motion.div
@@ -73,7 +82,10 @@ export default function Hero() {
           className="relative mx-auto w-full max-w-sm aspect-square"
         >
           <div className="absolute inset-0 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
-          <div className="relative h-full w-full rounded-2xl card p-8 flex items-center justify-center">
+          <div
+            onMouseMove={handleSpotlightMove}
+            className="spotlight relative h-full w-full rounded-2xl card p-8 flex items-center justify-center"
+          >
             <div className="grid grid-cols-2 gap-4 w-full">
               {NODES.map((n, i) => (
                 <motion.div

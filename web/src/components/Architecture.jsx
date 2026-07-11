@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import SectionHeading from './SectionHeading.jsx';
+import { handleSpotlightMove } from '../utils/spotlight.js';
 
 const STAGES = [
   { label: 'GitHub Actions', hint: 'OIDC — zero static keys' },
@@ -33,7 +34,8 @@ export default function Architecture() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ delay: i * 0.05, duration: 0.4 }}
                 whileHover={{ scale: 1.02 }}
-                className="flex-1 flex items-center justify-between gap-4 rounded-xl border border-border bg-white/[0.03] px-5 py-3.5 hover:border-accent/40 transition-colors"
+                onMouseMove={handleSpotlightMove}
+                className="spotlight flex-1 flex items-center justify-between gap-4 rounded-xl border border-border bg-white/[0.03] px-5 py-3.5 hover:border-accent/40 transition-colors"
               >
                 <span className="font-mono text-sm text-white">{s.label}</span>
                 <span className="text-xs text-muted hidden sm:inline">{s.hint}</span>

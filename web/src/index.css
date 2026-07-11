@@ -45,11 +45,33 @@
   .badge {
     @apply inline-flex items-center rounded-full border border-border bg-white/5 px-2.5 py-1 text-xs font-mono text-muted;
   }
+
+  /* Cursor-following glow. Pair with an onMouseMove={handleSpotlightMove}
+     handler (see src/utils/spotlight.js) that sets --x/--y on the element. */
+  .spotlight {
+    position: relative;
+  }
+  .spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(480px circle at var(--x, 50%) var(--y, 50%), rgba(255, 153, 0, 0.14), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
 }
 
 /* Respect reduced-motion users globally; Framer Motion components also check this. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .spotlight::before {
+    display: none;
   }
 }

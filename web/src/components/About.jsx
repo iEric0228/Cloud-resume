@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Award, GraduationCap } from 'lucide-react';
 import { profile } from '../data/profile.js';
+import { handleSpotlightMove } from '../utils/spotlight.js';
 
 const FACTS = [
   { icon: Award, label: 'AWS Certified Solutions Architect – Associate' },
@@ -26,7 +27,8 @@ export default function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ delay: i * 0.08, duration: 0.5 }}
-              className="card card-hover flex items-center gap-3 px-5 py-4"
+              onMouseMove={handleSpotlightMove}
+              className="spotlight card card-hover flex items-center gap-3 px-5 py-4"
             >
               <f.icon size={18} className="text-accent shrink-0" />
               <span className="text-sm text-white/90">{f.label}</span>

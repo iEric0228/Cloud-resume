@@ -1,9 +1,17 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { GraduationCap, Briefcase } from 'lucide-react';
+import { useRef } from 'react';
 import SectionHeading from './SectionHeading.jsx';
 import { timeline, transferableSkills } from '../data/stack.js';
 
 export default function Timeline() {
+  const trackRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ['start 85%', 'end 65%'],
+  });
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
   return (
     <section id="experience" className="section">
       <SectionHeading
@@ -12,8 +20,13 @@ export default function Timeline() {
         description="Before infrastructure, I ran real-time operations — the instincts transfer directly to incident response and on-call work."
       />
 
-      <div className="relative pl-8 sm:pl-10">
+      <div ref={trackRef} className="relative pl-8 sm:pl-10">
         <div className="absolute left-[7px] sm:left-[9px] top-1 bottom-1 w-px bg-border" aria-hidden="true" />
+        <motion.div
+          style={{ height: lineHeight }}
+          className="absolute left-[7px] sm:left-[9px] top-1 w-px bg-accent shadow-glow origin-top"
+          aria-hidden="true"
+        />
         <div className="space-y-10">
           {timeline.map((entry, i) => (
             <motion.div

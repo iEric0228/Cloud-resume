@@ -8,10 +8,13 @@ import Certifications from './components/Certifications.jsx';
 import Timeline from './components/Timeline.jsx';
 import Contact from './components/Contact.jsx';
 import Footer from './components/Footer.jsx';
+import ScrollProgress from './components/ScrollProgress.jsx';
+import BackToTop from './components/BackToTop.jsx';
 
 export default function App() {
   return (
     <div className="min-h-screen">
+      <ScrollProgress />
       <Nav />
       <main>
         <Hero />
@@ -24,6 +27,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }
