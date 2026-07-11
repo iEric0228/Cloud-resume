@@ -9,8 +9,10 @@ on:
     branches: [main]
     paths:
       - 'frontend/**'
+      - 'web/**'
       - 'backend/**'
       - 'infrastructure/**'
+      - 'scripts/publish-frontend.sh'
       - '.github/workflows/deploy.yml'
   pull_request:
     branches: [main]
