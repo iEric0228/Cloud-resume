@@ -285,7 +285,7 @@ The pipeline authenticates to AWS using **OpenID Connect** — no static AWS key
 
 1. An IAM OIDC identity provider for `token.actions.githubusercontent.com`
 2. An IAM role with a trust policy that allows your GitHub repo to assume it
-3. The role ARN configured in the workflow file
+3. The role ARN stored as the `AWS_ROLE_ARN` repository secret (Settings → Secrets and variables → Actions)
 
 ---
 
